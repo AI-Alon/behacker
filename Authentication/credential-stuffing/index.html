@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Credential Stuffing Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+
+  <div class="lab-banner">
+    CREDENTIAL STUFFING LAB &mdash; EDUCATIONAL PURPOSES ONLY
+  </div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+
+  <div class="container">
+    <div class="card main-card">
+      <h2>Account Login</h2>
+      <p class="subtitle">Secure Corp &trade; — Users reuse passwords from other breached services</p>
+
+      <p class="description">
+        A credential list from a fictional data breach is loaded below.
+        Run the attack to try each pair against this site's login.
+      </p>
+
+      <div class="code-label">Leaked credential list (breach dump):</div>
+      <div id="credList" class="cred-list"></div>
+
+      <button id="stuffBtn" class="btn-primary" style="margin-top:16px;">Run Credential Stuffing</button>
+
+      <div class="code-label" style="margin-top:20px;">Attack results:</div>
+      <div id="resultsLog" class="results-log"></div>
+
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DNS Rebinding — DNS Lab</title><link rel="stylesheet" href="style.css"><style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+<div class="lab-banner">⚠ EDUCATIONAL LAB — SUBDOMAIN &amp; DNS: DNS REBINDING</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+<div class="container">
+<div class="card main-card">
+  <h2>DNS Rebinding</h2>
+  <p class="subtitle">Bypassing the Same-Origin Policy via DNS TTL manipulation</p>
+  <p class="description">DNS rebinding exploits a low TTL to swap what IP a domain resolves to mid-session. The browser trusts requests to <code>attacker.com</code>, but after rebinding the DNS to <code>127.0.0.1</code>, the same origin now reaches the victim's localhost — bypassing the Same-Origin Policy.</p>
+
+  <div class="timeline" id="timeline">
+    <div class="tl-step" id="tl1">
+      <div class="tl-dot"></div>
+      <div class="tl-content"><strong>Phase 1</strong> — Victim visits <code>attacker.com</code>. DNS resolves to attacker's server (1.2.3.4). Page loads malicious JS.</div>
+    </div>
+    <div class="tl-step" id="tl2">
+      <div class="tl-dot"></div>
+      <div class="tl-content"><strong>Phase 2</strong> — TTL expires (5s). Attacker changes DNS to resolve <code>attacker.com</code> → <code>127.0.0.1</code>.</div>
+    </div>
+    <div class="tl-step" id="tl3">
+      <div class="tl-dot"></div>
+      <div class="tl-content"><strong>Phase 3</strong> — JS makes XHR to <code>attacker.com/admin</code>. Browser resolves DNS again → gets <code>127.0.0.1</code>. Request hits victim's local service.</div>
+    </div>
+    <div class="tl-step" id="tl4">
+      <div class="tl-dot"></div>
+      <div class="tl-content"><strong>Phase 4</strong> — Response from <code>localhost:8080/admin</code> returned to attacker's JS. Same-origin policy bypassed.</div>
+    </div>
+  </div>
+
+  <div class="btn-row" style="margin-top:20px">
+    <button class="btn-primary" id="simulateBtn">Simulate Attack</button>
+    <button class="btn-secondary" id="resetBtn">Reset</button>
+  </div>
+
+  <div class="code-label" style="margin-top:16px">DNS Lookup Log</div>
+  <div id="dnsLog" class="dns-log"></div>
+  <div id="exfilBox" class="hidden result-msg"></div>
+  <div id="explanationBox" class="explanation-box hidden"></div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

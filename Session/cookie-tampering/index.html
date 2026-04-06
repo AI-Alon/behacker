@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cookie Tampering Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+
+  <div class="lab-banner">
+    COOKIE TAMPERING LAB &mdash; EDUCATIONAL PURPOSES ONLY
+  </div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+
+  <div class="container">
+    <div class="card main-card">
+      <h2>Member Dashboard</h2>
+      <p class="subtitle">Secure Corp &trade; — Role and privileges stored in a client-side cookie</p>
+
+      <p class="description">
+        After login, the server sets a cookie containing your role and user ID.
+        The cookie is not signed — modify it directly to escalate your privileges.
+      </p>
+
+      <!-- Login -->
+      <form id="loginForm" autocomplete="off">
+        <div class="field">
+          <label for="username">Username</label>
+          <input type="text" id="username" placeholder="e.g. alice" value="alice" />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="password123" value="password123" />
+        </div>
+        <button type="submit" class="btn-primary">Login</button>
+      </form>
+
+      <div id="errorMsg" class="msg error hidden">Invalid credentials.</div>
+
+      <!-- Cookie inspector / editor -->
+      <div id="cookieSection" class="hidden">
+        <div class="code-label">Cookie set by server (base64-encoded, no signature):</div>
+        <code id="rawCookie" class="code-display">—</code>
+
+        <div class="code-label">Decoded cookie value (editable):</div>
+        <textarea id="cookieEditor" class="cookie-editor" rows="4"></textarea>
+        <button id="applyBtn" class="btn-secondary">Apply Tampered Cookie &amp; Reload Dashboard</button>
+
+        <div class="code-label" style="margin-top:16px;">Dashboard (rendered from cookie):</div>
+        <div id="dashboard" class="dashboard"></div>
+      </div>
+
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

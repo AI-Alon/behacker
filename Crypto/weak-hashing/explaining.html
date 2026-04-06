@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Weak Password Hashing — BEHACKER</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0f14;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:0}
+nav{background:#161b22;border-bottom:1px solid #30363d;padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.nav-brand{color:#c9d1d9;text-decoration:none;font-weight:700;font-size:1.1rem}
+.nav-back{color:#58a6ff;text-decoration:none;font-size:.9rem}
+.nav-back:hover{text-decoration:underline}
+main{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:2rem;font-weight:700;color:#e6edf3;margin-bottom:8px}
+.subtitle{color:#8b949e;font-size:.95rem;margin-bottom:40px}
+h2{font-size:1.3rem;font-weight:600;color:#e6edf3;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid #30363d}
+h3{font-size:1.1rem;font-weight:600;color:#f8c555;margin:24px 0 10px}
+p{line-height:1.7;margin-bottom:14px;color:#c9d1d9}
+ul,ol{margin:0 0 16px 24px;line-height:1.8}
+li{margin-bottom:4px}
+li strong{color:#e6edf3}
+code{background:#161b22;border:1px solid #30363d;border-radius:4px;padding:2px 6px;font-family:'Courier New',monospace;font-size:.88rem;color:#f8c555}
+pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;overflow-x:auto;margin:16px 0 24px}
+pre code{background:none;border:none;padding:0;color:#b5e8a0;font-size:.9rem}
+hr{border:none;border-top:1px solid #30363d;margin:32px 0}
+.back-btn{display:inline-block;margin-top:40px;padding:10px 20px;background:#238636;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:.9rem}
+.back-btn:hover{background:#2ea043}
+strong{color:#e6edf3}
+em{color:#8b949e;font-style:italic}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../../NAVIGATE.html" class="nav-brand">💀 BEHACKER</a>
+  <a href="index.html" class="nav-back">← Back to Lab</a>
+</nav>
+<main>
+<h1>Weak Password Hashing</h1>
+
+<h2>What is it?</h2>
+<p>Storing passwords hashed with fast algorithms (MD5, SHA-1, SHA-256) — with or without a salt — is insecure. Modern GPUs can compute billions of these hashes per second, making offline brute-force attacks feasible against entire databases in hours.</p>
+
+<h2>The problem with fast hashes</h2>
+<ul>
+<li><strong>MD5</strong>: ~60 billion/sec GPU — Instant (rainbow table)</li>
+<li><strong>SHA-1</strong>: ~20 billion/sec GPU — &lt; 1 second</li>
+<li><strong>SHA-256</strong>: ~10 billion/sec GPU — &lt; 1 second</li>
+<li><strong>bcrypt (cost=12)</strong>: ~20,000/sec GPU — Years</li>
+<li><strong>argon2id</strong>: ~1,000/sec GPU — Decades</li>
+</ul>
+
+<h2>Attack types</h2>
+
+<h3>Rainbow table attack</h3>
+<p>Pre-computed tables map millions of common passwords to their hashes. Looking up <code>5f4dcc3b5aa765d61d8327deb882cf99</code> → <code>password</code> takes microseconds.</p>
+
+<h3>Wordlist / dictionary attack</h3>
+<p>Tools like <code>hashcat</code> and <code>john the ripper</code> hash every word in a wordlist (rockyou.txt has 14M entries) and compare against stolen hashes. Common passwords crack in seconds.</p>
+
+<h3>Rule-based mutation</h3>
+<p><code>password</code> → <code>P@ssw0rd</code>, <code>pa$$word</code>, <code>password1!</code> — hashcat applies thousands of mutation rules automatically.</p>
+
+<h2>Why salting alone isn't enough</h2>
+<p>A unique per-password salt prevents rainbow tables but doesn't prevent wordlist attacks against MD5/SHA-1. With a GPU, an attacker still tries billions of candidates per second per hash.</p>
+
+<h2>Correct solution</h2>
+<p>Use a <strong>password hashing function</strong> — slow by design, with built-in salting:</p>
+
+<pre><code class="language-js">// Node.js — bcrypt
+const bcrypt = require('bcrypt');
+const hash = await bcrypt.hash(password, 12);          // ~300ms
+const valid = await bcrypt.compare(password, hash);    // constant-time
+
+// Node.js — argon2id (recommended)
+const argon2 = require('argon2');
+const hash = await argon2.hash(password, { type: argon2.argon2id });</code></pre>
+
+<pre><code class="language-python"># Python — argon2
+from argon2 import PasswordHasher
+ph = PasswordHasher()
+hash = ph.hash(password)
+ph.verify(hash, password)</code></pre>
+
+<h2>Migration strategy</h2>
+<p>If you have MD5/SHA-1 hashes in production:</p>
+<ol>
+<li>On next login, re-hash the plaintext password with bcrypt/argon2</li>
+<li>Replace the old hash in the database</li>
+<li>After sufficient time, force password reset for accounts that haven't logged in</li>
+</ol>
+
+<a href="index.html" class="back-btn">← Back to Lab</a>
+</main>
+</body>
+</html>

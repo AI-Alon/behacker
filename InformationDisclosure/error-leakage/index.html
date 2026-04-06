@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Error Message Leakage Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+
+  <div class="lab-banner">
+    ERROR MESSAGE LEAKAGE LAB &mdash; EDUCATIONAL PURPOSES ONLY
+  </div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+
+  <div class="container">
+    <div class="card main-card">
+      <h2>Product Search API</h2>
+      <p class="subtitle">Secure Corp &trade; — Verbose errors enabled in production</p>
+
+      <p class="description">
+        The server runs with <code>DEBUG=true</code> and returns full stack traces on errors.
+        Craft inputs that trigger exceptions to leak internal paths, library versions,
+        database structure, and source code snippets.
+      </p>
+
+      <form id="searchForm" autocomplete="off">
+        <div class="field">
+          <label for="queryInput">Search query</label>
+          <input type="text" id="queryInput" value="laptop" />
+        </div>
+        <div class="field">
+          <label for="sortInput">Sort by field</label>
+          <input type="text" id="sortInput" value="price" />
+        </div>
+        <div class="field">
+          <label for="limitInput">Limit</label>
+          <input type="text" id="limitInput" value="10" />
+        </div>
+        <button type="submit" class="btn-primary">Search</button>
+      </form>
+
+      <div class="code-label">Error-triggering payloads to try:</div>
+      <div class="hint-list">
+        <span class="hint" data-q="" data-s="price" data-l="10">empty query</span>
+        <span class="hint" data-q="laptop" data-s="nonexistent_column" data-l="10">invalid sort field</span>
+        <span class="hint" data-q="laptop" data-s="price" data-l="abc">non-numeric limit</span>
+        <span class="hint" data-q="'; DROP TABLE--" data-s="price" data-l="10">SQL in query</span>
+        <span class="hint" data-q="laptop" data-s="price" data-l="-1">negative limit</span>
+        <span class="hint" data-q="laptop" data-s="price" data-l="99999999">huge limit</span>
+      </div>
+
+      <div class="code-label" style="margin-top:16px;">Server response:</div>
+      <div id="responseBox" class="response-box hidden"></div>
+
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Clickjacking Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+
+  <div class="lab-banner">
+    CLICKJACKING LAB &mdash; EDUCATIONAL PURPOSES ONLY
+  </div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+
+  <div class="container">
+    <div class="card main-card">
+      <h2>Clickjacking Demo</h2>
+      <p class="subtitle">Secure Corp &trade; — A transparent iframe overlays a decoy page</p>
+
+      <p class="description">
+        The target page (below, left) has a <strong>Delete Account</strong> button with no
+        <code>X-Frame-Options</code> or <code>frame-ancestors</code> CSP header — it can be embedded in an iframe.
+        The attacker overlays it with a decoy page and positions the iframe so the dangerous button
+        sits directly under an innocent-looking element.
+      </p>
+
+      <div class="toggle-row">
+        <label class="toggle-label">
+          <input type="checkbox" id="revealToggle" />
+          Reveal iframe overlay
+        </label>
+        <span class="toggle-hint">(toggle to see what the victim actually clicks)</span>
+      </div>
+
+      <div class="demo-wrapper">
+        <!-- Decoy page the victim sees -->
+        <div id="decoyPage" class="decoy-page">
+          <div class="decoy-header">Win a Free iPhone!</div>
+          <p class="decoy-text">You have been selected. Click the button below to claim your prize.</p>
+          <button class="decoy-btn">Claim Prize</button>
+        </div>
+
+        <!-- Invisible iframe on top -->
+        <div id="targetFrame" class="target-frame">
+          <div class="fake-target-page">
+            <div class="fake-header">My Account — Secure Corp</div>
+            <p class="fake-body">Logged in as: alice</p>
+            <button class="fake-delete-btn" id="deleteBtn">Delete Account</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="clickResult" class="msg error hidden"></div>
+
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

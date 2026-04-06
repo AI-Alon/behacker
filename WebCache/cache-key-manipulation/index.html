@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cache Key Manipulation — Web Cache Poisoning</title><link rel="stylesheet" href="style.css"><style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+<div class="lab-banner">⚠ EDUCATIONAL LAB — WEB CACHE POISONING: CACHE KEY MANIPULATION</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+<div class="container">
+<div class="card main-card">
+  <h2>Cache Key Manipulation</h2>
+  <p class="subtitle">Web Cache Poisoning via Unkeyed Headers</p>
+  <p class="description">The cache key is based only on the URL path. But the server reflects <code>X-Forwarded-Host</code> into the response (e.g. for generating absolute URLs). Inject a malicious host to poison the cached page — every subsequent visitor receives the poisoned response.</p>
+
+  <div class="step-label">Step 1 — Craft Poison Request</div>
+  <div class="field">
+    <label>Path</label>
+    <input type="text" id="pathInput" value="/homepage">
+  </div>
+  <div class="headers-editor">
+    <div class="headers-editor-bar">Request Headers</div>
+    <div class="header-row"><span class="header-name">Host:</span><input class="header-value" data-header="Host" value="securecorp.com"></div>
+    <div class="header-row"><span class="header-name">X-Forwarded-Host:</span><input class="header-value" data-header="X-Forwarded-Host" value="securecorp.com"></div>
+    <div class="header-row"><span class="header-name">X-Forwarded-Scheme:</span><input class="header-value" data-header="X-Forwarded-Scheme" value="https"></div>
+    <div class="header-row"><span class="header-name">Cache-Control:</span><input class="header-value" data-header="Cache-Control" value=""></div>
+  </div>
+  <div class="hint-list">
+    <span class="hint" data-xfh="securecorp.com">Normal (no poison)</span>
+    <span class="hint" data-xfh="evil.com">evil.com (basic)</span>
+    <span class="hint" data-xfh="evil.com/malicious.js?">Script injection</span>
+    <span class="hint" data-xfh="attacker.net" data-scheme="http">HTTP downgrade</span>
+    <span class="hint" data-cache="no-cache">no-cache (bypass)</span>
+  </div>
+  <div class="btn-row">
+    <button class="btn-primary" id="sendBtn">Send Request (Attacker)</button>
+    <button class="btn-secondary" id="resetBtn">Reset Cache</button>
+  </div>
+
+  <div class="step-label">Step 2 — Victim Request</div>
+  <p class="description" style="margin-bottom:8px">A victim visits <code>/homepage</code> with a clean request — no special headers. The cache serves whatever was stored from the attacker's request.</p>
+  <button class="btn-primary" id="victimBtn">Simulate Victim Visit</button>
+
+  <div class="code-label" style="margin-top:16px">Response &amp; Cache Status</div>
+  <div id="responseBox" class="response-box hidden">
+    <div class="response-bar" id="responseBar"></div>
+    <pre id="responseBody"></pre>
+  </div>
+  <div id="cacheStatus" class="cache-status hidden"></div>
+  <div id="explanationBox" class="explanation-box hidden"></div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

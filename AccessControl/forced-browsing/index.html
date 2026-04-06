@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Forced Browsing Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+
+  <div class="lab-banner">
+    FORCED BROWSING LAB &mdash; EDUCATIONAL PURPOSES ONLY
+  </div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+
+  <div class="container">
+    <div class="card main-card">
+      <h2>Secure Corp File Server</h2>
+      <p class="subtitle">Secure Corp &trade; — Pages and files not linked in the UI but accessible by direct URL</p>
+
+      <p class="description">
+        The navigation only shows public pages, but the server hosts additional paths.
+        Guess or enumerate hidden URLs to access restricted content.
+      </p>
+
+      <div class="nav-bar">
+        <span class="nav-label">Site navigation:</span>
+        <button class="nav-link" data-path="/index.html">Home</button>
+        <button class="nav-link" data-path="/about.html">About</button>
+        <button class="nav-link" data-path="/contact.html">Contact</button>
+      </div>
+
+      <div class="field" style="margin-top:20px;">
+        <label for="pathInput">Enter a path to request directly</label>
+        <input type="text" id="pathInput" placeholder="e.g. /admin/panel.html" value="/admin/panel.html" />
+      </div>
+      <button id="goBtn" class="btn-primary">Request Path</button>
+
+      <div class="code-label" style="margin-top:8px;">Common paths to try:</div>
+      <div class="hint-list">
+        <span class="hint">/admin/panel.html</span>
+        <span class="hint">/admin/users.html</span>
+        <span class="hint">/backup/db.sql</span>
+        <span class="hint">/.env</span>
+        <span class="hint">/config.json</span>
+        <span class="hint">/uploads/</span>
+        <span class="hint">/api/debug</span>
+        <span class="hint">/old/index.html</span>
+      </div>
+
+      <div class="code-label" style="margin-top:16px;">Response:</div>
+      <div id="responseBox" class="response-box hidden"></div>
+
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

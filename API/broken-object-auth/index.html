@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Broken Object-Level Auth Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+  <div class="lab-banner">BROKEN OBJECT-LEVEL AUTH LAB &mdash; EDUCATIONAL PURPOSES ONLY</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+  <div class="container">
+    <div class="card main-card">
+      <h2>REST API — User Profiles</h2>
+      <p class="subtitle">Secure Corp &trade; — Authenticated but no ownership check on object access</p>
+      <p class="description">
+        You are authenticated as <strong>alice</strong> (uid 101). The API verifies your JWT but
+        does not check whether the requested object belongs to you. Change the ID in the URL to
+        access other users' private data.
+      </p>
+
+      <div class="field">
+        <label for="methodSelect">Method</label>
+        <select id="methodSelect">
+          <option>GET</option>
+          <option>PUT</option>
+          <option>DELETE</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="endpointInput">Endpoint</label>
+        <input type="text" id="endpointInput" value="/api/users/101/profile" />
+      </div>
+      <div id="bodyField" class="field hidden">
+        <label for="bodyInput">Request body (JSON)</label>
+        <textarea id="bodyInput" class="body-editor" rows="4">{ "email": "newemail@example.com" }</textarea>
+      </div>
+      <button id="sendBtn" class="btn-primary">Send Request</button>
+
+      <div class="code-label" style="margin-top:8px;">Try these endpoints:</div>
+      <div class="hint-list">
+        <span class="hint">/api/users/101/profile</span>
+        <span class="hint">/api/users/102/profile</span>
+        <span class="hint">/api/users/1/profile</span>
+        <span class="hint">/api/users/103/messages</span>
+        <span class="hint">/api/orders/500</span>
+        <span class="hint">/api/orders/501</span>
+      </div>
+
+      <div class="code-label" style="margin-top:16px;">Response:</div>
+      <div id="responseBox" class="response-box hidden"></div>
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Resource Exhaustion Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+
+  <div class="lab-banner">
+    RESOURCE EXHAUSTION LAB &mdash; EDUCATIONAL PURPOSES ONLY
+  </div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+
+  <div class="container">
+    <div class="card main-card">
+      <h2>Document Processor</h2>
+      <p class="subtitle">Secure Corp &trade; — No input size limits, no rate limiting</p>
+
+      <p class="description">
+        The server accepts a document and processes every word.
+        There is no size cap — sending a huge payload consumes all available CPU and memory.
+      </p>
+
+      <form id="submitForm" autocomplete="off">
+        <div class="field">
+          <label for="docInput">Paste document text</label>
+          <textarea id="docInput" rows="5" placeholder="Paste text here...">Hello world, this is a normal document.</textarea>
+        </div>
+        <div class="controls-row">
+          <button type="submit" class="btn-primary">Process Document</button>
+          <button type="button" id="bombBtn" class="btn-danger">Inject 500 000-word Payload</button>
+        </div>
+      </form>
+
+      <div class="code-label">Processing stats:</div>
+      <div id="statsBox" class="stats-box hidden"></div>
+
+      <div class="terminal" id="terminal" style="margin-top:16px; display:none;">
+        <div class="terminal-bar">server log</div>
+        <pre id="terminalOutput"></pre>
+      </div>
+
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

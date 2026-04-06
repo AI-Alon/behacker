@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ReDoS Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+
+  <div class="lab-banner">
+    ReDoS LAB &mdash; EDUCATIONAL PURPOSES ONLY
+  </div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+
+  <div class="container">
+    <div class="card main-card">
+      <h2>Email Validator</h2>
+      <p class="subtitle">Secure Corp &trade; — Input validated with a vulnerable regular expression</p>
+
+      <p class="description">
+        The server validates email addresses using a regex with catastrophic backtracking.
+        A specially crafted input can freeze the regex engine for seconds or longer.
+      </p>
+
+      <form id="validateForm" autocomplete="off">
+        <div class="field">
+          <label for="emailInput">Email address to validate</label>
+          <input type="text" id="emailInput" placeholder="user@example.com" value="user@example.com" />
+        </div>
+        <button type="submit" class="btn-primary">Validate</button>
+      </form>
+
+      <div class="code-label">Vulnerable regex in use:</div>
+      <code id="regexDisplay" class="code-display">—</code>
+
+      <div class="code-label" style="margin-top:8px;">ReDoS payloads to try:</div>
+      <div class="hint-list">
+        <span class="hint" data-payload="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!">aaa...a! (30 a's + !)</span>
+        <span class="hint" data-payload="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!">aaa...a! (40 a's + !)</span>
+        <span class="hint" data-payload="a@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab">a@aaa...b (long local)</span>
+      </div>
+
+      <div class="terminal" id="terminal" style="margin-top:16px; display:none;">
+        <div class="terminal-bar">execution log</div>
+        <pre id="terminalOutput"></pre>
+      </div>
+
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

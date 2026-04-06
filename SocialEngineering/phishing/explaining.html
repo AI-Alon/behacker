@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Phishing Page (Credential Harvesting) — BEHACKER</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0f14;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:0}
+nav{background:#161b22;border-bottom:1px solid #30363d;padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.nav-brand{color:#c9d1d9;text-decoration:none;font-weight:700;font-size:1.1rem}
+.nav-back{color:#58a6ff;text-decoration:none;font-size:.9rem}
+.nav-back:hover{text-decoration:underline}
+main{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:2rem;font-weight:700;color:#e6edf3;margin-bottom:8px}
+.subtitle{color:#8b949e;font-size:.95rem;margin-bottom:40px}
+h2{font-size:1.3rem;font-weight:600;color:#e6edf3;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid #30363d}
+h3{font-size:1.1rem;font-weight:600;color:#f8c555;margin:24px 0 10px}
+p{line-height:1.7;margin-bottom:14px;color:#c9d1d9}
+ul,ol{margin:0 0 16px 24px;line-height:1.8}
+li{margin-bottom:4px}
+li strong{color:#e6edf3}
+code{background:#161b22;border:1px solid #30363d;border-radius:4px;padding:2px 6px;font-family:'Courier New',monospace;font-size:.88rem;color:#f8c555}
+pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;overflow-x:auto;margin:16px 0 24px}
+pre code{background:none;border:none;padding:0;color:#b5e8a0;font-size:.9rem}
+hr{border:none;border-top:1px solid #30363d;margin:32px 0}
+.back-btn{display:inline-block;margin-top:40px;padding:10px 20px;background:#238636;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:.9rem}
+.back-btn:hover{background:#2ea043}
+strong{color:#e6edf3}
+em{color:#8b949e;font-style:italic}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../../NAVIGATE.html" class="nav-brand">💀 BEHACKER</a>
+  <a href="index.html" class="nav-back">← Back to Lab</a>
+</nav>
+<main>
+<h1>Phishing Page (Credential Harvesting)</h1>
+
+<h2>What is it?</h2>
+<p>Phishing is a social engineering attack where an attacker clones a legitimate login page and hosts it on a lookalike domain. Victims enter their credentials believing they are on the real site. The attacker captures them and redirects the victim to the real site — often without the victim realising anything happened.</p>
+
+<h2>Why it works</h2>
+<ul>
+<li>Humans recognize brand logos and page layouts, not URLs</li>
+<li>URLs are long, truncated on mobile, and easy to obscure</li>
+<li>Homograph attacks use Unicode characters that look identical to ASCII</li>
+<li>A valid TLS certificate (padlock icon) does not mean the site is legitimate</li>
+</ul>
+
+<h2>Homograph attack examples</h2>
+<ul>
+<li><code>gîthub.com</code> — real: <code>github.com</code> (Unicode î)</li>
+<li><code>paypaI.com</code> — real: <code>paypal.com</code> (uppercase i)</li>
+<li><code>аpple.com</code> — real: <code>apple.com</code> (Cyrillic а)</li>
+<li><code>arnazon.com</code> — real: <code>amazon.com</code> (rn looks like m)</li>
+<li><code>secure-paypal.com</code> — real: <code>paypal.com</code></li>
+</ul>
+
+<h2>Technical implementation</h2>
+<p>Modern phishing kits:</p>
+<ul>
+<li><strong>Reverse proxy phishing</strong>: Tools like Evilginx2 sit between victim and real site, forwarding all requests and capturing session cookies — bypassing SMS-based 2FA</li>
+<li><strong>Static clones</strong>: HTMLs captured with <code>wget --mirror</code> or HTTrack</li>
+<li><strong>Credential relay</strong>: Captured username/password used immediately against the real site</li>
+</ul>
+
+<h2>What attackers capture</h2>
+<ul>
+<li>Username/password → immediate account takeover</li>
+<li>Session cookies (via proxy) → bypasses MFA</li>
+<li>2FA codes → fed in real-time to the real site</li>
+<li>Security question answers → account recovery takeover</li>
+</ul>
+
+<h2>Detection signals for users</h2>
+<ol>
+<li>Check the full domain in the address bar (not just the lock icon)</li>
+<li>Your password manager won't autofill on a different domain</li>
+<li>Unexpected email asking you to log in</li>
+<li>URL delivered via SMS, messaging app, or email</li>
+</ol>
+
+<h2>Phishing-resistant defenses</h2>
+<ul>
+<li><strong>FIDO2/WebAuthn</strong>: Hardware keys are cryptographically bound to the origin — they cannot be used on a phishing domain</li>
+<li><strong>Password managers</strong>: Won't autofill on wrong domain</li>
+<li><strong>Email authentication</strong>: SPF, DKIM, DMARC to make spoofing harder</li>
+<li><strong>User training</strong>: Regular simulated phishing campaigns</li>
+</ul>
+
+<a href="index.html" class="back-btn">← Back to Lab</a>
+</main>
+</body>
+</html>

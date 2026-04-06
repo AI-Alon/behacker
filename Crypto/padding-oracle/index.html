@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Padding Oracle Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+  <div class="lab-banner">PADDING ORACLE LAB &mdash; EDUCATIONAL PURPOSES ONLY</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+  <div class="container">
+    <div class="card main-card">
+      <h2>Encrypted Session Cookie</h2>
+      <p class="subtitle">Secure Corp &trade; — AES-CBC with PKCS#7 padding, verbose padding errors</p>
+      <p class="description">
+        The session cookie is AES-128-CBC encrypted. The server returns a distinct error when
+        decryption produces invalid PKCS#7 padding — this acts as an oracle.
+        Flip bytes in the ciphertext to forge a session as any user.
+      </p>
+
+      <div class="step-label">Current encrypted session (base64)</div>
+      <div class="field">
+        <label for="cookieInput">Ciphertext (hex — edit individual bytes)</label>
+        <input type="text" id="cookieInput" class="mono-input" />
+      </div>
+
+      <div class="code-label">Byte flipper — toggle bits in a ciphertext block:</div>
+      <div id="byteGrid" class="byte-grid"></div>
+
+      <div class="btn-row">
+        <button id="decryptBtn" class="btn-primary">Send to Server (decrypt)</button>
+        <button id="forgeBtn"   class="btn-secondary">Auto-Forge Admin Cookie</button>
+      </div>
+
+      <div class="code-label" style="margin-top:16px;">Server response:</div>
+      <div id="responseBox" class="response-box hidden"></div>
+
+      <div class="code-label" style="margin-top:12px;">Oracle probe log:</div>
+      <div id="oracleLog" class="oracle-log"></div>
+
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

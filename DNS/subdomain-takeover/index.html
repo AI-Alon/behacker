@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Subdomain Takeover — DNS Lab</title><link rel="stylesheet" href="style.css"><style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+<div class="lab-banner">⚠ EDUCATIONAL LAB — SUBDOMAIN &amp; DNS: SUBDOMAIN TAKEOVER</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+<div class="container">
+<div class="card main-card">
+  <h2>Subdomain Takeover</h2>
+  <p class="subtitle">Claiming an abandoned subdomain pointing to a deprovisioned cloud resource</p>
+  <p class="description">When a service (GitHub Pages, Heroku, S3, Netlify) is deprovisioned but its DNS CNAME record is not removed, an attacker can register the same resource name on that platform and receive all traffic for that subdomain.</p>
+
+  <div class="step-label">Step 1 — Enumerate Subdomains</div>
+  <button class="btn-primary" id="enumBtn">Enumerate Subdomains</button>
+  <div id="subdomainList" class="subdomain-list hidden"></div>
+
+  <div class="step-label">Step 2 — Check DNS Records</div>
+  <div class="field">
+    <label>Subdomain to check</label>
+    <input type="text" id="subdomainInput" placeholder="staging.securecorp.com">
+  </div>
+  <button class="btn-primary" id="dnsBtn">Resolve DNS</button>
+  <div id="dnsResult" class="dns-result hidden"></div>
+
+  <div class="step-label">Step 3 — Claim the Resource</div>
+  <p class="description" style="margin-bottom:8px">If the CNAME target is unclaimed, register it on the platform to take over the subdomain.</p>
+  <div class="field">
+    <label>Select dangling subdomain to claim</label>
+    <select id="danglingSelect"><option value="">— enumerate first —</option></select>
+  </div>
+  <button class="btn-primary" id="claimBtn">Claim Abandoned Resource</button>
+  <div id="claimResult" class="hidden result-msg"></div>
+
+  <div id="explanationBox" class="explanation-box hidden"></div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

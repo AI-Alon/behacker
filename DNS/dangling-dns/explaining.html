@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dangling DNS Record — BEHACKER</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0f14;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:0}
+nav{background:#161b22;border-bottom:1px solid #30363d;padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.nav-brand{color:#c9d1d9;text-decoration:none;font-weight:700;font-size:1.1rem}
+.nav-back{color:#58a6ff;text-decoration:none;font-size:.9rem}
+.nav-back:hover{text-decoration:underline}
+main{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:2rem;font-weight:700;color:#e6edf3;margin-bottom:8px}
+.subtitle{color:#8b949e;font-size:.95rem;margin-bottom:40px}
+h2{font-size:1.3rem;font-weight:600;color:#e6edf3;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid #30363d}
+h3{font-size:1.1rem;font-weight:600;color:#f8c555;margin:24px 0 10px}
+p{line-height:1.7;margin-bottom:14px;color:#c9d1d9}
+ul,ol{margin:0 0 16px 24px;line-height:1.8}
+li{margin-bottom:4px}
+li strong{color:#e6edf3}
+code{background:#161b22;border:1px solid #30363d;border-radius:4px;padding:2px 6px;font-family:'Courier New',monospace;font-size:.88rem;color:#f8c555}
+pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;overflow-x:auto;margin:16px 0 24px}
+pre code{background:none;border:none;padding:0;color:#b5e8a0;font-size:.9rem}
+hr{border:none;border-top:1px solid #30363d;margin:32px 0}
+.back-btn{display:inline-block;margin-top:40px;padding:10px 20px;background:#238636;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:.9rem}
+.back-btn:hover{background:#2ea043}
+strong{color:#e6edf3}
+em{color:#8b949e;font-style:italic}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../../NAVIGATE.html" class="nav-brand">💀 BEHACKER</a>
+  <a href="index.html" class="nav-back">← Back to Lab</a>
+</nav>
+<main>
+<h1>Dangling DNS Record</h1>
+
+<h2>What is it?</h2>
+<p>A dangling DNS record is a DNS entry (usually a CNAME) that points to an external resource that no longer exists. The record was never cleaned up after the resource was deleted. This is essentially subdomain takeover but discovered by scanning DNS records rather than subdomain enumeration.</p>
+
+<h2>Difference from subdomain takeover</h2>
+<ul>
+<li><strong>Subdomain takeover</strong>: Discovered by finding subdomains and checking if CNAME targets are claimable</li>
+<li><strong>Dangling DNS</strong>: Same vulnerability, found by auditing the DNS zone directly for orphaned records</li>
+</ul>
+
+<h2>Common platforms with claimable resource names</h2>
+<ul>
+<li><strong>GitHub Pages</strong>: <code>&lt;org&gt;.github.io</code> — claimable</li>
+<li><strong>Netlify</strong>: <code>&lt;site&gt;.netlify.app</code> — claimable</li>
+<li><strong>Heroku</strong>: <code>&lt;app&gt;.herokuapp.com</code> — claimable</li>
+<li><strong>AWS S3</strong>: <code>&lt;bucket&gt;.s3.amazonaws.com</code> — claimable (same region)</li>
+<li><strong>Azure</strong>: <code>&lt;app&gt;.azurewebsites.net</code> — claimable</li>
+<li><strong>Shopify</strong>: <code>&lt;store&gt;.myshopify.com</code> — claimable</li>
+<li><strong>Zendesk</strong>: <code>&lt;company&gt;.zendesk.com</code> — claimable</li>
+</ul>
+
+<h2>Impact</h2>
+<ul>
+<li>Serve phishing pages under the legitimate domain</li>
+<li>Intercept OAuth redirect tokens (if subdomain is a registered redirect URI)</li>
+<li>Cookie theft (cookies scoped to <code>.example.com</code> readable from subdomain)</li>
+<li>Bypass email SPF/DMARC (send phishing from legitimate subdomain)</li>
+<li>CSP bypass (subdomain may be in the allowlist)</li>
+</ul>
+
+<h2>Automated scanning workflow</h2>
+<pre><code class="language-bash"># Export DNS zone
+dig axfr example.com @ns1.example.com &gt; zone.txt
+
+# Extract CNAMEs
+grep CNAME zone.txt | awk '{print $5}' &gt; cname_targets.txt
+
+# Check if targets are claimed
+# subjack handles fingerprint matching per platform
+subjack -w cname_targets.txt -t 100 -o results.txt -ssl
+
+# Or nuclei with takeover templates
+nuclei -l subdomains.txt -t ~/nuclei-templates/takeovers/</code></pre>
+
+<h2>Prevention</h2>
+<ol>
+<li>Use IaC (Terraform/Pulumi) — deleting a resource also removes its DNS record</li>
+<li>Quarterly DNS audits: compare all CNAME targets against active resource inventory</li>
+<li>Enable alerts when DNS records are added without a corresponding resource being created</li>
+<li>Before deprovisioning any cloud resource: <code>git grep</code> the resource name in DNS config, remove the record first</li>
+</ol>
+
+<a href="index.html" class="back-btn">← Back to Lab</a>
+</main>
+</body>
+</html>

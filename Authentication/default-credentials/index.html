@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Default Credentials Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+
+  <div class="lab-banner">
+    DEFAULT CREDENTIALS LAB &mdash; EDUCATIONAL PURPOSES ONLY
+  </div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+
+  <div class="container">
+    <div class="card main-card">
+      <h2>Admin Panel Login</h2>
+      <p class="subtitle">Secure Corp &trade; — Router / IoT device management interface</p>
+
+      <p class="description">
+        This device was shipped with factory-default credentials and never changed.
+        Try common default pairs to gain access.
+      </p>
+
+      <form id="loginForm" autocomplete="off">
+        <div class="field">
+          <label for="username">Username</label>
+          <input type="text" id="username" placeholder="e.g. admin" />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="e.g. admin" />
+        </div>
+        <button type="submit" class="btn-primary">Login</button>
+      </form>
+
+      <div id="errorMsg"   class="msg error   hidden">Invalid credentials.</div>
+      <div id="successMsg" class="msg success hidden"></div>
+
+      <div class="code-label" style="margin-top:16px;">Common default pairs to try:</div>
+      <div class="hint-list">
+        <span class="hint">admin / admin</span>
+        <span class="hint">admin / password</span>
+        <span class="hint">root / root</span>
+        <span class="hint">root / toor</span>
+        <span class="hint">admin / 1234</span>
+        <span class="hint">user / user</span>
+        <span class="hint">guest / guest</span>
+        <span class="hint">admin / (blank)</span>
+      </div>
+
+      <div class="code-label" style="margin-top:16px;">Simulated auto-check:</div>
+      <button id="autoBtn" class="btn-secondary">Try All Default Pairs</button>
+
+      <div id="autoLog" class="attempt-log" style="margin-top:10px;"></div>
+
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

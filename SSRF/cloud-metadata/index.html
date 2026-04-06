@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cloud Metadata SSRF — SSRF Lab</title><link rel="stylesheet" href="style.css"><style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+<div class="lab-banner">⚠ EDUCATIONAL LAB — SERVER-SIDE REQUEST FORGERY: CLOUD METADATA</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+<div class="container">
+<div class="card main-card">
+  <h2>Cloud Metadata SSRF</h2>
+  <p class="subtitle">Server-Side Request Forgery — AWS/GCP/Azure Metadata</p>
+  <p class="description">Cloud instances expose a metadata API at <code>169.254.169.254</code> that returns IAM credentials, instance info, and user-data scripts. An SSRF vulnerability lets an attacker hit this endpoint and steal cloud credentials.</p>
+
+  <div class="field">
+    <label>Metadata URL</label>
+    <input type="text" id="urlInput" placeholder="http://169.254.169.254/latest/meta-data/">
+  </div>
+  <div class="code-label">AWS Metadata Paths</div>
+  <div class="hint-list">
+    <span class="hint" data-url="http://169.254.169.254/latest/meta-data/">Root</span>
+    <span class="hint" data-url="http://169.254.169.254/latest/meta-data/iam/security-credentials/">IAM roles</span>
+    <span class="hint" data-url="http://169.254.169.254/latest/meta-data/iam/security-credentials/ec2-prod-role">Credentials</span>
+    <span class="hint" data-url="http://169.254.169.254/latest/user-data">User-data script</span>
+    <span class="hint" data-url="http://169.254.169.254/latest/meta-data/hostname">Hostname</span>
+    <span class="hint" data-url="http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token">GCP token</span>
+  </div>
+  <button class="btn-primary" id="fetchBtn" style="margin-top:16px;width:100%">Fetch via SSRF</button>
+
+  <div class="code-label" style="margin-top:16px">Response</div>
+  <div id="responseBox" class="response-box hidden">
+    <div class="response-bar" id="responseBar"></div>
+    <pre id="responseBody"></pre>
+  </div>
+  <div id="explanationBox" class="explanation-box hidden"></div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

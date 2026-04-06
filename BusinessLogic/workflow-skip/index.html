@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Workflow Skip — Business Logic Lab</title><link rel="stylesheet" href="style.css"><style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+<div class="lab-banner">⚠ EDUCATIONAL LAB — BUSINESS LOGIC FLAW: WORKFLOW SKIP</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+<div class="container">
+<div class="card main-card">
+  <h2>Workflow Skip</h2>
+  <p class="subtitle">Business Logic Flaw</p>
+  <p class="description">A multi-step checkout flow (Cart → Address → Payment → Confirm) should enforce sequential completion. Navigate directly to a later step URL to skip payment entirely and receive a confirmed order.</p>
+
+  <div class="step-bar" id="stepBar">
+    <div class="step-node active" data-step="1">1<span>Cart</span></div>
+    <div class="step-connector"></div>
+    <div class="step-node" data-step="2">2<span>Address</span></div>
+    <div class="step-connector"></div>
+    <div class="step-node" data-step="3">3<span>Payment</span></div>
+    <div class="step-connector"></div>
+    <div class="step-node" data-step="4">4<span>Confirm</span></div>
+  </div>
+
+  <div class="step-label" style="margin-top:20px">Simulate Direct URL Navigation</div>
+  <div class="url-bar">
+    <span class="url-base">https://shop.securecorp.com/checkout/</span>
+    <select id="stepSelect">
+      <option value="1">step/1/cart</option>
+      <option value="2">step/2/address</option>
+      <option value="3">step/3/payment</option>
+      <option value="4">step/4/confirm</option>
+    </select>
+    <button class="btn-primary" id="navigateBtn">Navigate</button>
+  </div>
+
+  <div id="stepContent" class="step-content"></div>
+  <div id="explanationBox" class="explanation-box hidden"></div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

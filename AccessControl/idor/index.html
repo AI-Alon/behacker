@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IDOR Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+
+  <div class="lab-banner">
+    IDOR LAB &mdash; EDUCATIONAL PURPOSES ONLY
+  </div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+
+  <div class="container">
+    <div class="card main-card">
+      <h2>My Account</h2>
+      <p class="subtitle">Secure Corp &trade; — View your invoice by ID</p>
+
+      <p class="description">
+        You are logged in as <strong>alice</strong> (user ID 101).
+        The API endpoint fetches invoices by the <code>id</code> parameter — with no ownership check.
+      </p>
+
+      <form id="fetchForm" autocomplete="off">
+        <div class="field">
+          <label for="invoiceId">Invoice ID <span class="field-note">(try 1–8)</span></label>
+          <input type="number" id="invoiceId" value="1" min="1" max="8" />
+        </div>
+        <button type="submit" class="btn-primary">Fetch Invoice</button>
+      </form>
+
+      <div class="code-label">Request sent:</div>
+      <code id="requestDisplay" class="code-display">—</code>
+
+      <div class="code-label">Server response:</div>
+      <div id="responseBox" class="response-box hidden"></div>
+
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

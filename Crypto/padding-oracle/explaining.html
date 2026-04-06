@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Padding Oracle Attack — BEHACKER</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0f14;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:0}
+nav{background:#161b22;border-bottom:1px solid #30363d;padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.nav-brand{color:#c9d1d9;text-decoration:none;font-weight:700;font-size:1.1rem}
+.nav-back{color:#58a6ff;text-decoration:none;font-size:.9rem}
+.nav-back:hover{text-decoration:underline}
+main{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:2rem;font-weight:700;color:#e6edf3;margin-bottom:8px}
+.subtitle{color:#8b949e;font-size:.95rem;margin-bottom:40px}
+h2{font-size:1.3rem;font-weight:600;color:#e6edf3;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid #30363d}
+h3{font-size:1.1rem;font-weight:600;color:#f8c555;margin:24px 0 10px}
+p{line-height:1.7;margin-bottom:14px;color:#c9d1d9}
+ul,ol{margin:0 0 16px 24px;line-height:1.8}
+li{margin-bottom:4px}
+li strong{color:#e6edf3}
+code{background:#161b22;border:1px solid #30363d;border-radius:4px;padding:2px 6px;font-family:'Courier New',monospace;font-size:.88rem;color:#f8c555}
+pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;overflow-x:auto;margin:16px 0 24px}
+pre code{background:none;border:none;padding:0;color:#b5e8a0;font-size:.9rem}
+hr{border:none;border-top:1px solid #30363d;margin:32px 0}
+.back-btn{display:inline-block;margin-top:40px;padding:10px 20px;background:#238636;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:.9rem}
+.back-btn:hover{background:#2ea043}
+strong{color:#e6edf3}
+em{color:#8b949e;font-style:italic}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../../NAVIGATE.html" class="nav-brand">💀 BEHACKER</a>
+  <a href="index.html" class="nav-back">← Back to Lab</a>
+</nav>
+<main>
+<h1>Padding Oracle Attack</h1>
+
+<h2>What is it?</h2>
+<p>A padding oracle attack exploits a server that reveals whether a decrypted ciphertext has valid PKCS#7 padding. This single bit of information — "valid" vs "invalid" padding — allows an attacker to decrypt any ciphertext block or forge arbitrary plaintext, <strong>without knowing the encryption key</strong>.</p>
+
+<h2>Background: AES-CBC and PKCS#7 padding</h2>
+
+<p>AES-CBC encrypts in 16-byte blocks. The last block is padded to fill 16 bytes:</p>
+<ul>
+<li>1 missing byte → <code>\x01</code></li>
+<li>2 missing bytes → <code>\x02\x02</code></li>
+<li>3 missing bytes → <code>\x03\x03\x03</code></li>
+<li>16 missing bytes → <code>\x10\x10...\x10</code> (full padding block)</li>
+</ul>
+
+<p>During decryption, the server XORs the ciphertext block with the previous block (IV for block 1), then checks that the padding is valid. If not, it throws an error — that error is the oracle.</p>
+
+<h2>How decryption works (CBC)</h2>
+
+<pre><code>Plaintext[i] = Decrypt(CT[i]) XOR CT[i-1]</code></pre>
+
+<p>By manipulating <code>CT[i-1]</code> (or the IV), we control the XOR that's applied to the raw decrypted bytes.</p>
+
+<h2>The attack in steps</h2>
+
+<p><strong>Goal: Decrypt byte 15 (last byte) of block 1</strong></p>
+
+<ol>
+<li>Set byte 15 of the IV to values 0x00–0xFF, sending 256 probes</li>
+<li>When the oracle returns "valid padding", <code>Decrypted[15] XOR IV'[15] = 0x01</code></li>
+<li>Therefore: <code>Intermediate[15] = 0x01 XOR IV'[15]</code></li>
+<li>Actual plaintext: <code>Plaintext[15] = Intermediate[15] XOR IV_original[15]</code></li>
+</ol>
+
+<p>Repeat for bytes 14, 13, ..., 0 (adjusting padding target each time).</p>
+
+<p><strong>Full block decryption requires at most 256 × 16 = 4,096 probes.</strong></p>
+
+<h2>Forging arbitrary plaintext</h2>
+
+<p>Once intermediate values are known:</p>
+<pre><code>new_IV[i] = target_plaintext[i] XOR Intermediate[i]</code></pre>
+<p>The server will decrypt the ciphertext to exactly <code>target_plaintext</code>.</p>
+
+<p>Example: forge a cookie from <code>role=user</code> to <code>role=admin</code> without the key.</p>
+
+<h2>Real-world instances</h2>
+<ul>
+<li><strong>POODLE (2014)</strong>: SSL 3.0 — forced CBC with padding oracle</li>
+<li><strong>Lucky13 (2013)</strong>: TLS CBC — timing side-channel</li>
+<li><strong>ASP.NET Padding Oracle</strong>: .NET ViewState / encrypted forms auth</li>
+<li><strong>Java PKCS#1 oracle</strong>: Various JCE implementations</li>
+</ul>
+
+<h2>Defense</h2>
+<p><strong>Use authenticated encryption.</strong> AES-GCM authenticates the ciphertext before decrypting:</p>
+
+<pre><code class="language-python"># Python — AES-GCM (authenticated)
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+key = AESGCM.generate_key(bit_length=256)
+aesgcm = AESGCM(key)
+nonce = os.urandom(12)
+ct = aesgcm.encrypt(nonce, plaintext, None)      # includes auth tag
+pt = aesgcm.decrypt(nonce, ct, None)             # raises if tampered</code></pre>
+
+<p>With GCM, any modification to the ciphertext causes MAC verification to fail — the server never attempts decryption at all. There is no "valid vs invalid padding" signal to exploit.</p>
+
+<p><strong>Never use AES-CBC for cookie encryption or session tokens.</strong> Use AES-GCM, ChaCha20-Poly1305, or a high-level library like <code>nacl</code>/<code>libsodium</code>.</p>
+
+<a href="index.html" class="back-btn">← Back to Lab</a>
+</main>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pretexting — BEHACKER</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0f14;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:0}
+nav{background:#161b22;border-bottom:1px solid #30363d;padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.nav-brand{color:#c9d1d9;text-decoration:none;font-weight:700;font-size:1.1rem}
+.nav-back{color:#58a6ff;text-decoration:none;font-size:.9rem}
+.nav-back:hover{text-decoration:underline}
+main{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:2rem;font-weight:700;color:#e6edf3;margin-bottom:8px}
+.subtitle{color:#8b949e;font-size:.95rem;margin-bottom:40px}
+h2{font-size:1.3rem;font-weight:600;color:#e6edf3;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid #30363d}
+h3{font-size:1.1rem;font-weight:600;color:#f8c555;margin:24px 0 10px}
+p{line-height:1.7;margin-bottom:14px;color:#c9d1d9}
+ul,ol{margin:0 0 16px 24px;line-height:1.8}
+li{margin-bottom:4px}
+li strong{color:#e6edf3}
+code{background:#161b22;border:1px solid #30363d;border-radius:4px;padding:2px 6px;font-family:'Courier New',monospace;font-size:.88rem;color:#f8c555}
+pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;overflow-x:auto;margin:16px 0 24px}
+pre code{background:none;border:none;padding:0;color:#b5e8a0;font-size:.9rem}
+hr{border:none;border-top:1px solid #30363d;margin:32px 0}
+.back-btn{display:inline-block;margin-top:40px;padding:10px 20px;background:#238636;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:.9rem}
+.back-btn:hover{background:#2ea043}
+strong{color:#e6edf3}
+em{color:#8b949e;font-style:italic}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../../NAVIGATE.html" class="nav-brand">💀 BEHACKER</a>
+  <a href="index.html" class="nav-back">← Back to Lab</a>
+</nav>
+<main>
+<h1>Pretexting</h1>
+
+<h2>What is it?</h2>
+<p>Pretexting is a social engineering technique where the attacker fabricates a scenario (the "pretext") to manipulate a target into revealing information or taking an action they otherwise wouldn't. Unlike phishing (which relies on urgency and a fake login page), pretexting builds a believable narrative to establish trust or authority.</p>
+
+<h2>Core psychological levers</h2>
+
+<ul>
+<li><strong>Authority</strong>: "I'm the CEO / IT Security / your manager"</li>
+<li><strong>Urgency</strong>: "Your account will be locked in 24 hours"</li>
+<li><strong>Fear</strong>: "We detected suspicious activity on your account"</li>
+<li><strong>Social proof</strong>: "All other employees have already completed this"</li>
+<li><strong>Reciprocity</strong>: "We've already verified half your details, just need X"</li>
+<li><strong>Scarcity</strong>: "This is a one-time verification window"</li>
+</ul>
+
+<h2>Common pretext scenarios</h2>
+
+<h3>IT support fraud</h3>
+<p>"We detected malware on your machine. I need remote access and your current password to remediate."</p>
+
+<h3>CEO fraud / Business Email Compromise (BEC)</h3>
+<p>Impersonate an executive to request urgent wire transfers. BEC caused $2.7 billion in losses in 2022 (FBI IC3 report).</p>
+
+<h3>Vendor account change</h3>
+<p>"We've updated our banking details. Please redirect payment for invoice #X to the new account."</p>
+
+<h3>Security audit</h3>
+<p>"As part of compliance, we need you to verify your credentials by replying to this email."</p>
+
+<h2>Red flags</h2>
+<ul>
+<li>Requests for passwords (no legitimate service ever needs your password)</li>
+<li>Extreme urgency combined with secrecy ("don't tell anyone")</li>
+<li>Sender email domain slightly different from the real company</li>
+<li>Requests that bypass normal approval processes</li>
+</ul>
+
+<h2>Defenses</h2>
+<ol>
+<li><strong>Verify through a separate channel</strong>: Call the person using a known phone number, not one provided in the suspicious message</li>
+<li><strong>Process controls</strong>: Wire transfers require multi-person approval + out-of-band confirmation</li>
+<li><strong>Training</strong>: Regular social engineering awareness training with simulated attacks</li>
+<li><strong>"It's okay to say no"</strong>: Empower employees to refuse unusual requests without fear</li>
+<li><strong>Callback verification</strong>: For account/banking changes, always call back using a number from official records</li>
+</ol>
+
+<a href="index.html" class="back-btn">← Back to Lab</a>
+</main>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Session Fixation — How It Works — BEHACKER</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0f14;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:0}
+nav{background:#161b22;border-bottom:1px solid #30363d;padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.nav-brand{color:#c9d1d9;text-decoration:none;font-weight:700;font-size:1.1rem}
+.nav-back{color:#58a6ff;text-decoration:none;font-size:.9rem}
+.nav-back:hover{text-decoration:underline}
+main{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:2rem;font-weight:700;color:#e6edf3;margin-bottom:8px}
+.subtitle{color:#8b949e;font-size:.95rem;margin-bottom:40px}
+h2{font-size:1.3rem;font-weight:600;color:#e6edf3;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid #30363d}
+h3{font-size:1.1rem;font-weight:600;color:#f8c555;margin:24px 0 10px}
+p{line-height:1.7;margin-bottom:14px;color:#c9d1d9}
+ul,ol{margin:0 0 16px 24px;line-height:1.8}
+li{margin-bottom:4px}
+li strong{color:#e6edf3}
+code{background:#161b22;border:1px solid #30363d;border-radius:4px;padding:2px 6px;font-family:'Courier New',monospace;font-size:.88rem;color:#f8c555}
+pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;overflow-x:auto;margin:16px 0 24px}
+pre code{background:none;border:none;padding:0;color:#b5e8a0;font-size:.9rem}
+hr{border:none;border-top:1px solid #30363d;margin:32px 0}
+.back-btn{display:inline-block;margin-top:40px;padding:10px 20px;background:#238636;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:.9rem}
+.back-btn:hover{background:#2ea043}
+strong{color:#e6edf3}
+em{color:#8b949e;font-style:italic}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../../NAVIGATE.html" class="nav-brand">💀 BEHACKER</a>
+  <a href="index.html" class="nav-back">← Back to Lab</a>
+</nav>
+<main>
+<h1>Session Fixation — How It Works</h1>
+
+<h2>Normal session flow (safe)</h2>
+
+<pre><code>1. User visits /login         → server creates session SID=RANDOM_A
+2. User submits credentials   → server destroys RANDOM_A, creates new SID=RANDOM_B
+3. Browser stores RANDOM_B    → only the server and this browser know it</code></pre>
+
+<p>The session ID is regenerated after login — an attacker who knew the pre-login SID can't use it.</p>
+
+<hr>
+
+<h2>Vulnerable flow (no regeneration)</h2>
+
+<pre><code>1. Server accepts ?sid= from URL → pre-creates session SID=ATTACKER_KNOWN
+2. Attacker sends victim: https://site.com/login?sid=ATTACKER_KNOWN
+3. Victim logs in               → server binds alice's identity to SID=ATTACKER_KNOWN
+4. Attacker sends:  Cookie: sid=ATTACKER_KNOWN
+5. Server responds: Welcome, alice!</code></pre>
+
+<p>The attacker "fixed" the session ID before login — the server never replaced it.</p>
+
+<hr>
+
+<h2>Attack delivery methods</h2>
+
+<pre><code># URL parameter (most common)
+https://site.com/login?sid=KNOWN123
+
+# Meta refresh / iframe (no user interaction needed)
+&lt;meta http-equiv="refresh" content="0; url=https://site.com/login?sid=KNOWN123"&gt;
+
+# Some servers accept SID in a hidden form field or cookie header</code></pre>
+
+<hr>
+
+<h2>The Fix</h2>
+
+<pre><code class="language-js">// Express / Node example
+app.post("/login", (req, res) =&gt; {
+  if (validCredentials(req.body)) {
+    // SAFE: destroy old session, regenerate ID
+    req.session.regenerate((err) =&gt; {
+      req.session.user = authenticatedUser;
+      res.redirect("/dashboard");
+    });
+  }
+});</code></pre>
+
+<p>Always regenerate the session ID immediately after a successful login.</p>
+<p>Never accept a session ID from user-supplied input (URL, form field).</p>
+
+<a href="index.html" class="back-btn">← Back to Lab</a>
+</main>
+</body>
+</html>

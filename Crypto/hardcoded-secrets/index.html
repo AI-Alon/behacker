@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hardcoded Secrets Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+  <div class="lab-banner">HARDCODED SECRETS LAB &mdash; EDUCATIONAL PURPOSES ONLY</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+  <div class="container">
+    <div class="card main-card">
+      <h2>Payment Dashboard</h2>
+      <p class="subtitle">Secure Corp &trade; — Secrets baked into the JavaScript bundle</p>
+      <p class="description">
+        The frontend JavaScript bundle ships with API keys, tokens, and credentials embedded
+        directly in the source code. Use the simulated source viewer to find them.
+      </p>
+
+      <div class="step-label">JavaScript bundle viewer (as seen in DevTools → Sources)</div>
+      <div class="file-tabs">
+        <button class="tab active" data-file="main.bundle.js">main.bundle.js</button>
+        <button class="tab" data-file="vendor.bundle.js">vendor.bundle.js</button>
+        <button class="tab" data-file="config.chunk.js">config.chunk.js</button>
+      </div>
+      <div id="bundleViewer" class="bundle-viewer"></div>
+
+      <button id="scanBtn" class="btn-secondary" style="margin-top:12px;">Auto-Scan for Secrets</button>
+
+      <div class="code-label" style="margin-top:16px;">Secrets found:</div>
+      <div id="secretsList" class="secrets-list"></div>
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

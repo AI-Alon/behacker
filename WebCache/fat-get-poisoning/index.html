@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fat GET Poisoning — Web Cache Poisoning</title><link rel="stylesheet" href="style.css"><style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+<div class="lab-banner">⚠ EDUCATIONAL LAB — WEB CACHE POISONING: FAT GET POISONING</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+<div class="container">
+<div class="card main-card">
+  <h2>Fat GET Poisoning</h2>
+  <p class="subtitle">Smuggling a body into a GET request to override the cached response</p>
+  <p class="description">Some servers allow a GET request to carry a body, and use body parameters over query parameters. The cache, however, keys only on the URL. Inject a malicious <code>search</code> parameter in the body to poison the cached <code>GET /search?q=normal</code> response.</p>
+
+  <div class="step-label">Craft Fat GET Request</div>
+  <div class="field">
+    <label>GET URL (used as cache key)</label>
+    <input type="text" id="urlInput" value="/search?q=shoes">
+  </div>
+  <div class="field">
+    <label>Request Body (overrides query params on server)</label>
+    <textarea class="body-editor" id="bodyInput" rows="3">q=shoes</textarea>
+  </div>
+  <div class="hint-list">
+    <span class="hint" data-url="/search?q=shoes" data-body="q=shoes">Normal</span>
+    <span class="hint" data-url="/search?q=shoes" data-body="q=<script>alert(1)</script>">XSS in body</span>
+    <span class="hint" data-url="/search?q=shoes" data-body="q=shoes&admin=true">Parameter override</span>
+  </div>
+  <button class="btn-primary" id="sendBtn" style="margin-top:12px">Send Fat GET</button>
+  <button class="btn-primary" id="victimBtn" style="margin-top:8px;background:#1f6feb">Victim: GET /search?q=shoes</button>
+
+  <div class="code-label" style="margin-top:16px">Response</div>
+  <div id="responseBox" class="response-box hidden">
+    <div class="response-bar" id="responseBar"></div>
+    <pre id="responseBody"></pre>
+  </div>
+  <div id="cacheStatus" class="cache-status hidden"></div>
+  <div id="explanationBox" class="explanation-box hidden"></div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

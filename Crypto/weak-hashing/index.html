@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Weak Hashing Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+  <div class="lab-banner">WEAK HASHING LAB &mdash; EDUCATIONAL PURPOSES ONLY</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+  <div class="container">
+    <div class="card main-card">
+      <h2>Leaked Password Database</h2>
+      <p class="subtitle">Secure Corp &trade; — MD5-hashed passwords, no salt</p>
+      <p class="description">
+        The database was breached and the password hashes leaked. The hashes use MD5 with no salt —
+        crack them using a wordlist or rainbow table lookup.
+      </p>
+
+      <div class="code-label">Leaked hash table:</div>
+      <div id="hashTable" class="hash-table"></div>
+
+      <div style="margin-top:20px;">
+        <div class="step-label">Crack a hash</div>
+        <div class="field">
+          <label for="hashInput">MD5 hash to crack</label>
+          <input type="text" id="hashInput" placeholder="paste a hash from above" />
+        </div>
+        <div class="field">
+          <label for="wordlistSelect">Wordlist</label>
+          <select id="wordlistSelect">
+            <option value="common">Common passwords (top 20)</option>
+            <option value="extended">Extended list (top 50)</option>
+          </select>
+        </div>
+        <button id="crackBtn" class="btn-primary">Crack Hash</button>
+      </div>
+
+      <div class="terminal" id="terminal" style="display:none; margin-top:16px;">
+        <div class="terminal-bar">crack output</div>
+        <pre id="terminalOutput"></pre>
+      </div>
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JWT Attacks — How It Works — BEHACKER</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0f14;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:0}
+nav{background:#161b22;border-bottom:1px solid #30363d;padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.nav-brand{color:#c9d1d9;text-decoration:none;font-weight:700;font-size:1.1rem}
+.nav-back{color:#58a6ff;text-decoration:none;font-size:.9rem}
+.nav-back:hover{text-decoration:underline}
+main{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:2rem;font-weight:700;color:#e6edf3;margin-bottom:8px}
+.subtitle{color:#8b949e;font-size:.95rem;margin-bottom:40px}
+h2{font-size:1.3rem;font-weight:600;color:#e6edf3;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid #30363d}
+h3{font-size:1.1rem;font-weight:600;color:#f8c555;margin:24px 0 10px}
+p{line-height:1.7;margin-bottom:14px;color:#c9d1d9}
+ul,ol{margin:0 0 16px 24px;line-height:1.8}
+li{margin-bottom:4px}
+li strong{color:#e6edf3}
+code{background:#161b22;border:1px solid #30363d;border-radius:4px;padding:2px 6px;font-family:'Courier New',monospace;font-size:.88rem;color:#f8c555}
+pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;overflow-x:auto;margin:16px 0 24px}
+pre code{background:none;border:none;padding:0;color:#b5e8a0;font-size:.9rem}
+hr{border:none;border-top:1px solid #30363d;margin:32px 0}
+.back-btn{display:inline-block;margin-top:40px;padding:10px 20px;background:#238636;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:.9rem}
+.back-btn:hover{background:#2ea043}
+strong{color:#e6edf3}
+em{color:#8b949e;font-style:italic}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../../NAVIGATE.html" class="nav-brand">💀 BEHACKER</a>
+  <a href="index.html" class="nav-back">← Back to Lab</a>
+</nav>
+<main>
+<h1>JWT Attacks — How It Works</h1>
+
+<h2>JWT structure</h2>
+
+<p>A JWT is three base64url-encoded parts separated by dots:</p>
+
+<pre><code>HEADER.PAYLOAD.SIGNATURE
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+.eyJzdWIiOiIxMDEiLCJ1c2VybmFtZSI6ImFsaWNlIiwicm9sZSI6InVzZXIifQ
+.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</code></pre>
+
+<p>Anyone can decode the header and payload — they are not encrypted.</p>
+<p>Security depends entirely on the signature being unforged.</p>
+
+<hr>
+
+<h2>Attack 1 — alg:none</h2>
+
+<p>Some JWT libraries read the <code>alg</code> field from the token's own header and use it for verification.</p>
+
+<pre><code class="language-json">// Attacker changes header to:
+{ "alg": "none", "typ": "JWT" }
+
+// Removes the signature:
+eyJhbGciOiJub25lIn0.eyJyb2xlIjoiYWRtaW4ifQ.</code></pre>
+
+<p>If the server accepts <code>alg:none</code>, it skips signature verification entirely.</p>
+<p>Any claims in the payload are trusted — no secret needed.</p>
+
+<p><strong>Fix:</strong> hardcode the expected algorithm server-side, never read it from the token.</p>
+
+<hr>
+
+<h2>Attack 2 — Brute-force weak secret (HS256)</h2>
+
+<p>HS256 tokens can be verified offline — the attacker doesn't need to send requests to the server.</p>
+
+<pre><code class="language-bash"># hashcat
+hashcat -a 0 -m 16500 token.jwt rockyou.txt
+
+# jwt-cracker (Node)
+jwt-cracker "eyJ..." wordlist.txt</code></pre>
+
+<p>Once the secret is known, the attacker can sign any payload they want.</p>
+
+<p><strong>Fix:</strong> use a random secret of at least 256 bits. Consider RS256 (asymmetric) so the signing key never leaves the server.</p>
+
+<hr>
+
+<h2>Attack 3 — Claim modification</h2>
+
+<p>Even without cracking the secret, if the attacker can resign (e.g., after brute-forcing), they modify:</p>
+
+<pre><code class="language-json">{ "role": "admin", "sub": "1", "username": "alice" }</code></pre>
+
+<p>The server grants admin access because it trusts the <code>role</code> claim in the JWT.</p>
+
+<p><strong>Fix:</strong> treat JWT claims as hints only. Verify role and permissions against a server-side database on sensitive operations.</p>
+
+<hr>
+
+<h2>Common JWT weaknesses summary</h2>
+
+<ul>
+<li><strong><code>alg:none</code> accepted</strong>: Attack — Strip signature, forge claims | Fix — Hardcode expected alg server-side</li>
+<li><strong>Weak HMAC secret</strong>: Attack — Offline brute-force, re-sign | Fix — 256-bit random secret or RS256</li>
+<li><strong>No expiry (<code>exp</code>)</strong>: Attack — Token valid forever | Fix — Set short <code>exp</code>, implement revocation</li>
+<li><strong>Sensitive data in payload</strong>: Attack — Decode and read | Fix — JWTs are not encrypted — don't store secrets</li>
+<li><strong>Role stored in JWT</strong>: Attack — Modify role claim | Fix — Re-validate role from DB on each request</li>
+</ul>
+
+<a href="index.html" class="back-btn">← Back to Lab</a>
+</main>
+</body>
+</html>

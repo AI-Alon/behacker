@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CSRF Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+
+  <div class="lab-banner">
+    CSRF LAB &mdash; EDUCATIONAL PURPOSES ONLY
+  </div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+
+  <div class="container">
+    <div class="card main-card">
+      <h2>CSRF — Cross-Site Request Forgery</h2>
+      <p class="subtitle">Secure Corp &trade; — State-changing actions with no CSRF token</p>
+
+      <p class="description">
+        You are logged in as <strong>alice</strong>. The "Transfer Funds" endpoint accepts POST
+        requests and trusts the session cookie — there is no CSRF token to verify the request
+        originated from this site.
+      </p>
+
+      <!-- Legitimate form on the real site -->
+      <div class="section-label">Legitimate form (on securecorp.com)</div>
+      <form id="legitimateForm" autocomplete="off">
+        <div class="field">
+          <label for="toAccount">Transfer to account</label>
+          <input type="text" id="toAccount" value="alice-savings" />
+        </div>
+        <div class="field">
+          <label for="amount">Amount ($)</label>
+          <input type="number" id="amount" value="50" />
+        </div>
+        <button type="submit" class="btn-primary">Transfer (legitimate)</button>
+      </form>
+
+      <!-- Simulated attacker page -->
+      <div class="section-label" style="margin-top:24px;">Attacker page (on evil.com) — victim visits this</div>
+      <div class="attacker-page">
+        <div class="attacker-header">You won a gift card!</div>
+        <p style="font-size:0.88rem;color:#555;margin-bottom:12px;">Click below to redeem your $200 gift card.</p>
+        <button id="attackBtn" class="btn-attack">Redeem Now</button>
+        <div class="attacker-note">
+          (hidden auto-submitting form — victim never sees this)
+          <code id="hiddenFormDisplay" class="hidden-form-code"></code>
+        </div>
+      </div>
+
+      <div class="code-label">Request log:</div>
+      <div id="requestLog" class="request-log"></div>
+
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

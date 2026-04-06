@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Stored Cache Poisoning — Web Cache Poisoning</title><link rel="stylesheet" href="style.css"><style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+<div class="lab-banner">⚠ EDUCATIONAL LAB — WEB CACHE POISONING: STORED CACHE POISONING</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+<div class="container">
+<div class="card main-card">
+  <h2>Stored Cache Poisoning</h2>
+  <p class="subtitle">Poisoning a shared cache entry to deliver malicious content to all visitors</p>
+  <p class="description">The app reflects a query parameter into a JavaScript variable in the page. By poisoning the cached response, every visitor who loads the page from cache receives your injected script — without interacting with the exploit URL themselves.</p>
+
+  <div class="step-label">Step 1 — Craft Poison Request</div>
+  <div class="field">
+    <label>URL with injected parameter</label>
+    <input type="text" id="urlInput" value="/homepage?cb=1">
+  </div>
+  <div class="hint-list">
+    <span class="hint" data-url="/homepage?cb=1">Normal</span>
+    <span class="hint" data-url="/homepage?cb=1&lang=en'-alert(1)-'">XSS in JS var</span>
+    <span class="hint" data-url="/homepage?cb=1&utm_content=</script><script>alert(document.cookie)</script>">Script break</span>
+  </div>
+  <button class="btn-primary" id="poisonBtn" style="margin-top:12px">Send (Poison Cache)</button>
+
+  <div class="step-label">Step 2 — Victim Request</div>
+  <p class="description" style="margin-bottom:8px">A victim visits <code>/homepage</code> without any parameters. The cache serves the poisoned response.</p>
+  <button class="btn-primary" id="victimBtn">Simulate Victim Visit</button>
+
+  <div class="code-label" style="margin-top:16px">Page Source (served from cache)</div>
+  <div id="sourceBox" class="source-box hidden"><pre id="sourceContent"></pre></div>
+  <div id="cacheStatus" class="cache-status hidden"></div>
+  <div id="explanationBox" class="explanation-box hidden"></div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

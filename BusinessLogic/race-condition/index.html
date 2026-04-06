@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Race Condition — Business Logic Lab</title><link rel="stylesheet" href="style.css"><style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+<div class="lab-banner">⚠ EDUCATIONAL LAB — BUSINESS LOGIC FLAW: RACE CONDITION</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+<div class="container">
+<div class="card main-card">
+  <h2>Race Condition (TOCTOU)</h2>
+  <p class="subtitle">Business Logic Flaw — Time-of-Check vs Time-of-Use</p>
+  <p class="description">The server checks your balance before deducting it, but there's a window between check and deduction. Fire multiple simultaneous requests to spend the same balance more than once.</p>
+
+  <div class="balance-display">
+    <div class="bal-label">Account Balance</div>
+    <div class="bal-amount" id="balanceDisplay">$50.00</div>
+  </div>
+
+  <div class="field">
+    <label>Transfer Amount</label>
+    <input type="number" id="transferAmount" value="50" min="1" step="1">
+  </div>
+  <div class="field">
+    <label>Number of Concurrent Requests</label>
+    <input type="range" id="concurrentCount" min="1" max="20" value="10">
+    <span id="concurrentLabel">10 requests</span>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-primary" id="singleBtn">Send Single Request</button>
+    <button class="btn-danger" id="raceBtn">Fire Race (Concurrent)</button>
+    <button class="btn-secondary" id="resetBtn">Reset Balance</button>
+  </div>
+
+  <div class="code-label" style="margin-top:16px">Request Log</div>
+  <div id="raceLog" class="race-log"></div>
+  <div id="raceResult" class="hidden result-box"></div>
+  <div id="explanationBox" class="explanation-box hidden"></div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

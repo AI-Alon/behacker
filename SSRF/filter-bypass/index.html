@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SSRF Filter Bypass — SSRF Lab</title><link rel="stylesheet" href="style.css"><style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+<div class="lab-banner">⚠ EDUCATIONAL LAB — SERVER-SIDE REQUEST FORGERY: FILTER BYPASS</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+<div class="container">
+<div class="card main-card">
+  <h2>SSRF Filter Bypass</h2>
+  <p class="subtitle">Circumventing Allowlists &amp; Blocklists</p>
+  <p class="description">The server blocks obvious SSRF targets (<code>127.0.0.1</code>, <code>localhost</code>, <code>169.254.169.254</code>). Use alternative representations, DNS tricks, and encoding to bypass the filter and still reach internal resources.</p>
+
+  <div class="field">
+    <label>URL (try bypass techniques)</label>
+    <input type="text" id="urlInput" placeholder="http://127.0.0.1/admin">
+  </div>
+  <div class="code-label">Bypass Techniques</div>
+  <div class="hint-list">
+    <span class="hint" data-url="http://127.0.0.1/admin">Direct (blocked)</span>
+    <span class="hint" data-url="http://2130706433/admin">Decimal IP</span>
+    <span class="hint" data-url="http://0x7f000001/admin">Hex IP</span>
+    <span class="hint" data-url="http://0177.0.0.1/admin">Octal IP</span>
+    <span class="hint" data-url="http://[::1]/admin">IPv6 loopback</span>
+    <span class="hint" data-url="http://localtest.me/admin">DNS → 127.0.0.1</span>
+    <span class="hint" data-url="http://127.0.0.1.nip.io/admin">nip.io</span>
+    <span class="hint" data-url="http://169.254.169.254.xip.io/">xip.io metadata</span>
+  </div>
+  <button class="btn-primary" id="fetchBtn" style="margin-top:16px;width:100%">Submit</button>
+
+  <div class="code-label" style="margin-top:16px">Filter Decision &amp; Response</div>
+  <div id="filterResult" class="filter-result hidden"></div>
+  <div id="responseBox" class="response-box hidden">
+    <div class="response-bar" id="responseBar"></div>
+    <pre id="responseBody"></pre>
+  </div>
+  <div id="explanationBox" class="explanation-box hidden"></div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

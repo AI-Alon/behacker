@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Web Cache Poisoning — Cache Key Manipulation — BEHACKER</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0f14;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:0}
+nav{background:#161b22;border-bottom:1px solid #30363d;padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.nav-brand{color:#c9d1d9;text-decoration:none;font-weight:700;font-size:1.1rem}
+.nav-back{color:#58a6ff;text-decoration:none;font-size:.9rem}
+.nav-back:hover{text-decoration:underline}
+main{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:2rem;font-weight:700;color:#e6edf3;margin-bottom:8px}
+.subtitle{color:#8b949e;font-size:.95rem;margin-bottom:40px}
+h2{font-size:1.3rem;font-weight:600;color:#e6edf3;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid #30363d}
+h3{font-size:1.1rem;font-weight:600;color:#f8c555;margin:24px 0 10px}
+p{line-height:1.7;margin-bottom:14px;color:#c9d1d9}
+ul,ol{margin:0 0 16px 24px;line-height:1.8}
+li{margin-bottom:4px}
+li strong{color:#e6edf3}
+code{background:#161b22;border:1px solid #30363d;border-radius:4px;padding:2px 6px;font-family:'Courier New',monospace;font-size:.88rem;color:#f8c555}
+pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;overflow-x:auto;margin:16px 0 24px}
+pre code{background:none;border:none;padding:0;color:#b5e8a0;font-size:.9rem}
+hr{border:none;border-top:1px solid #30363d;margin:32px 0}
+.back-btn{display:inline-block;margin-top:40px;padding:10px 20px;background:#238636;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:.9rem}
+.back-btn:hover{background:#2ea043}
+strong{color:#e6edf3}
+em{color:#8b949e;font-style:italic}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../../NAVIGATE.html" class="nav-brand">💀 BEHACKER</a>
+  <a href="index.html" class="nav-back">← Back to Lab</a>
+</nav>
+<main>
+<h1>Web Cache Poisoning — Cache Key Manipulation</h1>
+
+<h2>What is it?</h2>
+<p>Web caches store responses keyed on the request URL (and sometimes specific headers). If the server uses a header that is NOT part of the cache key to generate the response (e.g. reflecting <code>X-Forwarded-Host</code> into script tags), an attacker can poison the cached response. Every subsequent visitor who requests the same URL receives the malicious response.</p>
+
+<h2>Mechanism</h2>
+<pre><code>Cache key:   GET /homepage
+             Host: securecorp.com
+             [X-Forwarded-Host excluded from key]
+
+Attacker:    GET /homepage
+             X-Forwarded-Host: evil.com
+
+Server reflects: &lt;script src="https://evil.com/cdn/app.js"&gt;&lt;/script&gt;
+Cache stores this response under key GET:/homepage
+
+Victim:      GET /homepage  (no X-Forwarded-Host header)
+             → Cache HIT → receives poisoned page → loads evil.js</code></pre>
+
+<h2>Common unkeyed headers</h2>
+<ul>
+<li><code>X-Forwarded-Host</code>, <code>X-Forwarded-Scheme</code>, <code>X-Forwarded-Proto</code></li>
+<li><code>X-Original-URL</code>, <code>X-Rewrite-URL</code></li>
+<li><code>X-Forwarded-For</code> (when reflected in responses)</li>
+<li><code>Origin</code>, <code>User-Agent</code> (sometimes used for feature detection)</li>
+</ul>
+
+<h2>Real-world examples</h2>
+<ul>
+<li><strong>Portswigger research (2018)</strong>: Dozens of major sites vulnerable to cache poisoning via <code>X-Forwarded-Host</code></li>
+<li><strong>CPDoS (2019)</strong>: Cache Poisoned Denial of Service — poison cache to serve 400 errors</li>
+</ul>
+
+<h2>Defense</h2>
+<pre><code class="language-nginx"># Include all response-affecting headers in cache key
+add_header Vary "X-Forwarded-Host, X-Forwarded-Scheme";
+
+# Or: don't reflect these headers in responses
+# Validate X-Forwarded-Host against known values</code></pre>
+<ul>
+<li>Never reflect unvalidated headers into script/link tags</li>
+<li>Use <code>Vary</code> to include headers that affect the response in the cache key</li>
+<li>Run automated cache poisoning tests before deploying (Param Miner Burp extension)</li>
+</ul>
+
+<a href="index.html" class="back-btn">← Back to Lab</a>
+</main>
+</body>
+</html>

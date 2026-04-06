@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Negative Price — Business Logic Lab</title><link rel="stylesheet" href="style.css"><style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+<div class="lab-banner">⚠ EDUCATIONAL LAB — BUSINESS LOGIC FLAW: NEGATIVE PRICE</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+<div class="container">
+<div class="card main-card">
+  <h2>Negative Price Attack</h2>
+  <p class="subtitle">Business Logic Flaw</p>
+  <p class="description">This shop applies discounts by subtracting from the item price. Submit a negative quantity or extreme discount to make the total negative — forcing a refund on a free purchase.</p>
+
+  <div class="shop-layout">
+    <div class="product-list" id="productList"></div>
+    <div class="cart-panel">
+      <div class="step-label">Cart</div>
+      <div id="cartItems" class="cart-items"><p class="empty-cart">No items yet.</p></div>
+      <div class="cart-totals" id="cartTotals"></div>
+      <div class="field">
+        <label>Discount Code</label>
+        <input type="text" id="discountCode" placeholder="e.g. SAVE10">
+      </div>
+      <div class="field">
+        <label>Quantity Override (try negative values)</label>
+        <input type="number" id="qtyOverride" value="1" step="1">
+      </div>
+      <button class="btn-primary" id="applyDiscount">Apply Discount</button>
+      <button class="btn-primary" id="checkoutBtn" style="margin-top:8px">Place Order</button>
+      <div id="orderResult" class="hidden"></div>
+    </div>
+  </div>
+
+  <div id="explanationBox" class="explanation-box hidden"></div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

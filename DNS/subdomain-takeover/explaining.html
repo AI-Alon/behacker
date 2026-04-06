@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Subdomain Takeover — BEHACKER</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0f14;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:0}
+nav{background:#161b22;border-bottom:1px solid #30363d;padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.nav-brand{color:#c9d1d9;text-decoration:none;font-weight:700;font-size:1.1rem}
+.nav-back{color:#58a6ff;text-decoration:none;font-size:.9rem}
+.nav-back:hover{text-decoration:underline}
+main{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:2rem;font-weight:700;color:#e6edf3;margin-bottom:8px}
+.subtitle{color:#8b949e;font-size:.95rem;margin-bottom:40px}
+h2{font-size:1.3rem;font-weight:600;color:#e6edf3;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid #30363d}
+h3{font-size:1.1rem;font-weight:600;color:#f8c555;margin:24px 0 10px}
+p{line-height:1.7;margin-bottom:14px;color:#c9d1d9}
+ul,ol{margin:0 0 16px 24px;line-height:1.8}
+li{margin-bottom:4px}
+li strong{color:#e6edf3}
+code{background:#161b22;border:1px solid #30363d;border-radius:4px;padding:2px 6px;font-family:'Courier New',monospace;font-size:.88rem;color:#f8c555}
+pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;overflow-x:auto;margin:16px 0 24px}
+pre code{background:none;border:none;padding:0;color:#b5e8a0;font-size:.9rem}
+hr{border:none;border-top:1px solid #30363d;margin:32px 0}
+.back-btn{display:inline-block;margin-top:40px;padding:10px 20px;background:#238636;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:.9rem}
+.back-btn:hover{background:#2ea043}
+strong{color:#e6edf3}
+em{color:#8b949e;font-style:italic}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../../NAVIGATE.html" class="nav-brand">💀 BEHACKER</a>
+  <a href="index.html" class="nav-back">← Back to Lab</a>
+</nav>
+<main>
+<h1>Subdomain Takeover</h1>
+
+<h2>What is it?</h2>
+<p>Subdomain takeover occurs when an organization removes a cloud resource (GitHub Pages, Heroku app, AWS S3 bucket, Netlify site) but leaves the DNS CNAME record pointing to it. An attacker can register the same resource name on that platform, gaining control of all traffic to that subdomain.</p>
+
+<h2>Step-by-step</h2>
+<ol>
+<li>Organization sets: <code>staging.example.com CNAME → example.github.io</code></li>
+<li>Organization deletes the GitHub Pages site (but forgets the DNS record)</li>
+<li><code>example.github.io</code> is now unclaimed — anyone can create it</li>
+<li>Attacker creates a GitHub Pages repo named <code>example</code></li>
+<li><code>staging.example.com</code> now serves attacker content under the legitimate domain</li>
+</ol>
+
+<h2>Why it's severe</h2>
+<ul>
+<li><strong>Trusted domain</strong>: The subdomain inherits the parent's reputation and TLS cert</li>
+<li><strong>Cookie scope</strong>: Cookies set for <code>.example.com</code> are readable from <code>staging.example.com</code></li>
+<li><strong>CORS bypass</strong>: Origins like <code>staging.example.com</code> may be whitelisted in CORS policies</li>
+<li><strong>OAuth redirect</strong>: If <code>staging.example.com</code> is a registered OAuth redirect URI, attacker receives tokens</li>
+<li><strong>Email reputation</strong>: Subdomain can send phishing emails appearing to come from example.com</li>
+</ul>
+
+<h2>Vulnerable platforms (partial list)</h2>
+<p>GitHub Pages, Netlify, Heroku, AWS S3/CloudFront, Azure Web Apps, Fastly, Pantheon, Zendesk, UserVoice, Freshdesk, WP Engine</p>
+
+<h2>Detection tools</h2>
+<ul>
+<li><code>subjack</code> — scans subdomain list for dangling CNAMEs</li>
+<li><code>nuclei</code> with takeover templates</li>
+<li><code>can-i-take-over-xyz</code> — GitHub repo of platform fingerprints</li>
+<li><code>dnsX</code> — fast DNS resolution and analysis</li>
+</ul>
+
+<h2>Prevention</h2>
+<ol>
+<li>Remove DNS records <strong>before</strong> deprovisioning resources</li>
+<li>Manage DNS and cloud resources together in IaC (Terraform/Pulumi)</li>
+<li>Regular automated DNS audits against active resource inventory</li>
+<li>Use <code>NS</code> record monitoring to alert on unregistered CNAME targets</li>
+</ol>
+
+<a href="index.html" class="back-btn">← Back to Lab</a>
+</main>
+</body>
+</html>

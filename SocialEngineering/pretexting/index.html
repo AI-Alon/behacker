@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pretexting — Social Engineering Lab</title><link rel="stylesheet" href="style.css"><style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+<div class="lab-banner">⚠ EDUCATIONAL LAB — SOCIAL ENGINEERING: PRETEXTING</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+<div class="container">
+<div class="card main-card">
+  <h2>Pretexting</h2>
+  <p class="subtitle">Social Engineering — Fake IT Support Scenario</p>
+  <p class="description">Pretexting creates a fabricated scenario (pretext) to manipulate a target into divulging information or taking an action. This lab simulates a fake IT helpdesk ticket designed to extract credentials and MFA codes.</p>
+
+  <div class="toggle-row">
+    <button class="btn-toggle active" id="btnAttacker">Attacker View</button>
+    <button class="btn-toggle" id="btnVictim">Victim View</button>
+  </div>
+
+  <div id="attackerView">
+    <div class="step-label">Craft Pretext Message</div>
+    <div class="field">
+      <label>Scenario Template</label>
+      <select id="scenarioSelect">
+        <option value="it">IT Support — Urgent Password Reset</option>
+        <option value="ceo">CEO Fraud — Wire Transfer</option>
+        <option value="vendor">Vendor Invoice Redirect</option>
+        <option value="security">Security Team — Account Verification</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Target Name</label>
+      <input type="text" id="targetName" value="Alice">
+    </div>
+    <div class="field">
+      <label>Sender Display Name</label>
+      <input type="text" id="senderName" value="IT Security Team">
+    </div>
+    <button class="btn-primary" id="generateBtn" style="width:100%">Generate Pretext</button>
+    <div class="code-label" style="margin-top:16px">Captured Information</div>
+    <div id="capturedInfo" class="harvested-list"></div>
+  </div>
+
+  <div id="victimView" class="hidden">
+    <div id="pretextFrame" class="phish-frame"></div>
+  </div>
+
+  <div id="explanationBox" class="explanation-box hidden"></div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

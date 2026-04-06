@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Server-Side Prototype Pollution</title><link rel="stylesheet" href="style.css"><style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+<div class="lab-banner">⚠ EDUCATIONAL LAB — PROTOTYPE POLLUTION: SERVER-SIDE</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+<div class="container">
+<div class="card main-card">
+  <h2>Server-Side Prototype Pollution</h2>
+  <p class="subtitle">Polluting Node.js Object.prototype via API JSON body</p>
+  <p class="description">A Node.js API endpoint recursively merges the request body into a server-side object. Inject <code>__proto__</code> keys to pollute <code>Object.prototype</code> on the server, affecting all subsequent object property lookups — leading to privilege escalation or RCE.</p>
+
+  <div class="step-label">Step 1 — Send Polluting JSON</div>
+  <div class="field">
+    <label>PATCH /api/user/settings — Request Body</label>
+    <textarea class="body-editor" id="bodyInput" rows="8">{"theme": "dark", "notifications": true}</textarea>
+  </div>
+  <div class="hint-list">
+    <span class="hint" data-body='{"theme":"dark"}'>Normal</span>
+    <span class="hint" data-body='{"__proto__":{"isAdmin":true}}'>isAdmin escalation</span>
+    <span class="hint" data-body='{"__proto__":{"shell":"node","NODE_OPTIONS":"--require /proc/self/fd/0"}}'>RCE gadget</span>
+    <span class="hint" data-body='{"constructor":{"prototype":{"isAdmin":true}}}'>via constructor</span>
+  </div>
+  <button class="btn-primary" id="sendBtn" style="margin-top:12px">Send Request</button>
+
+  <div class="code-label" style="margin-top:16px">Server Response</div>
+  <div id="responseBox" class="response-box hidden">
+    <div class="response-bar" id="responseBar"></div>
+    <pre id="responseBody"></pre>
+  </div>
+
+  <div class="step-label">Step 2 — Probe Server State</div>
+  <p class="description" style="margin-bottom:8px">After pollution, check if the prototype property persists across a new unrelated request. A fresh object's property access reveals the pollution.</p>
+  <button class="btn-primary" id="probeBtn">GET /api/whoami</button>
+  <div id="probeResult" class="hidden result-msg"></div>
+
+  <div id="explanationBox" class="explanation-box hidden"></div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

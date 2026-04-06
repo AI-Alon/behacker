@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Directory Listing Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+
+  <div class="lab-banner">
+    DIRECTORY LISTING LAB &mdash; EDUCATIONAL PURPOSES ONLY
+  </div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+
+  <div class="container">
+    <div class="card main-card">
+      <h2>File Server</h2>
+      <p class="subtitle">Secure Corp &trade; — Web server with directory listing enabled</p>
+
+      <p class="description">
+        The web server is misconfigured with <code>autoindex on</code> (Nginx) or
+        <code>Options +Indexes</code> (Apache). Browsing to any directory without an
+        <code>index.html</code> returns a full file listing.
+      </p>
+
+      <div class="field">
+        <label for="pathInput">Browse to directory</label>
+        <input type="text" id="pathInput" value="/uploads/" />
+      </div>
+      <button id="browseBtn" class="btn-primary">Browse</button>
+
+      <div class="code-label" style="margin-top:8px;">Interesting directories to explore:</div>
+      <div class="hint-list">
+        <span class="hint">/uploads/</span>
+        <span class="hint">/backup/</span>
+        <span class="hint">/logs/</span>
+        <span class="hint">/assets/</span>
+        <span class="hint">/tmp/</span>
+        <span class="hint">/.git/</span>
+      </div>
+
+      <div class="code-label" style="margin-top:16px;">Directory listing:</div>
+      <div id="listingBox" class="listing-box hidden"></div>
+
+      <div id="fileContent" class="file-content hidden">
+        <div class="code-label">File contents:</div>
+        <pre id="fileContentPre"></pre>
+      </div>
+
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Path Traversal Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+
+  <div class="lab-banner">
+    PATH TRAVERSAL LAB &mdash; EDUCATIONAL PURPOSES ONLY
+  </div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+
+  <div class="container">
+    <div class="card main-card">
+      <h2>File Viewer</h2>
+      <p class="subtitle">Secure Corp &trade; — View documents from the uploads directory</p>
+
+      <p class="description">
+        The server reads a file by appending the <code>filename</code> parameter directly to the
+        base path with no sanitisation. Use <code>../</code> sequences to escape the uploads
+        directory and read arbitrary files.
+      </p>
+
+      <form id="fileForm" autocomplete="off">
+        <div class="field">
+          <label for="filenameInput">Filename <span class="field-note">(sent as ?file= parameter)</span></label>
+          <input type="text" id="filenameInput" value="report.pdf" />
+        </div>
+        <button type="submit" class="btn-primary">Read File</button>
+      </form>
+
+      <div class="code-label">Hints — try these paths:</div>
+      <div class="hint-list">
+        <span class="hint">report.pdf</span>
+        <span class="hint">../config.json</span>
+        <span class="hint">../../etc/passwd</span>
+        <span class="hint">../../../etc/shadow</span>
+        <span class="hint">../.env</span>
+        <span class="hint">../../var/log/auth.log</span>
+        <span class="hint">....//....//etc/passwd</span>
+        <span class="hint">..%2F..%2Fetc%2Fpasswd</span>
+      </div>
+
+      <div class="code-label" style="margin-top:16px;">Server-side path resolved:</div>
+      <code id="pathDisplay" class="code-display">—</code>
+
+      <div class="terminal" id="terminal" style="display:none;">
+        <div class="terminal-bar">file contents</div>
+        <pre id="terminalOutput"></pre>
+      </div>
+
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

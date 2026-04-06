@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Broken Object-Level Authorization (BOLA / IDOR) — BEHACKER</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0f14;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:0}
+nav{background:#161b22;border-bottom:1px solid #30363d;padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.nav-brand{color:#c9d1d9;text-decoration:none;font-weight:700;font-size:1.1rem}
+.nav-back{color:#58a6ff;text-decoration:none;font-size:.9rem}
+.nav-back:hover{text-decoration:underline}
+main{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:2rem;font-weight:700;color:#e6edf3;margin-bottom:8px}
+.subtitle{color:#8b949e;font-size:.95rem;margin-bottom:40px}
+h2{font-size:1.3rem;font-weight:600;color:#e6edf3;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid #30363d}
+h3{font-size:1.1rem;font-weight:600;color:#f8c555;margin:24px 0 10px}
+p{line-height:1.7;margin-bottom:14px;color:#c9d1d9}
+ul,ol{margin:0 0 16px 24px;line-height:1.8}
+li{margin-bottom:4px}
+li strong{color:#e6edf3}
+code{background:#161b22;border:1px solid #30363d;border-radius:4px;padding:2px 6px;font-family:'Courier New',monospace;font-size:.88rem;color:#f8c555}
+pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;overflow-x:auto;margin:16px 0 24px}
+pre code{background:none;border:none;padding:0;color:#b5e8a0;font-size:.9rem}
+hr{border:none;border-top:1px solid #30363d;margin:32px 0}
+.back-btn{display:inline-block;margin-top:40px;padding:10px 20px;background:#238636;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:.9rem}
+.back-btn:hover{background:#2ea043}
+strong{color:#e6edf3}
+em{color:#8b949e;font-style:italic}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../../NAVIGATE.html" class="nav-brand">💀 BEHACKER</a>
+  <a href="index.html" class="nav-back">← Back to Lab</a>
+</nav>
+<main>
+<h1>Broken Object-Level Authorization (BOLA / IDOR)</h1>
+
+<h2>What is it?</h2>
+<p>BOLA (also called IDOR — Insecure Direct Object Reference) is the #1 API vulnerability according to OWASP API Security Top 10. It occurs when an API uses a user-supplied identifier (ID, UUID, filename) to access a resource without verifying that the currently authenticated user is allowed to access it.</p>
+
+<h2>How it works</h2>
+<p><strong>Vulnerable endpoint:</strong></p>
+<pre><code>GET /api/orders/1001        → returns Alice's order
+GET /api/orders/1002        → returns Bob's order (Alice can access this!)</code></pre>
+
+<p>The server fetches the order by ID but never checks <code>order.userId === session.userId</code>.</p>
+
+<p><strong>Vulnerable code:</strong></p>
+<pre><code class="language-js">app.get('/api/orders/:id', async (req, res) =&gt; {
+  const order = await Order.findById(req.params.id);
+  // ❌ No ownership check!
+  res.json(order);
+});</code></pre>
+
+<p><strong>Secure code:</strong></p>
+<pre><code class="language-js">app.get('/api/orders/:id', async (req, res) =&gt; {
+  const order = await Order.findOne({
+    id: req.params.id,
+    userId: req.session.userId  // ✅ ownership enforced at DB level
+  });
+  if (!order) return res.status(403).json({ error: 'Forbidden' });
+  res.json(order);
+});</code></pre>
+
+<h2>Variants</h2>
+<ul>
+<li><strong>BOLA (read)</strong>: Access another user's data by guessing their ID</li>
+<li><strong>BOLA (write/delete)</strong>: Modify or delete another user's resources</li>
+<li><strong>BFLA</strong>: Call admin-level functions as a regular user</li>
+<li><strong>Indirect reference</strong>: Predict filenames, sequential IDs, UUIDs</li>
+</ul>
+
+<h2>Impact</h2>
+<ul>
+<li>Read other users' PII, financial records, private messages, documents</li>
+<li>Delete or modify other users' accounts or orders</li>
+<li>Escalate privileges by calling admin endpoints</li>
+</ul>
+
+<h2>Real-world examples</h2>
+<ul>
+<li><strong>Uber (2016)</strong>: Could access any driver's trip history by changing trip ID</li>
+<li><strong>Instagram</strong>: Could retrieve private photos by guessing media IDs</li>
+<li><strong>T-Mobile</strong>: Customer account data accessible by changing account number in API</li>
+</ul>
+
+<h2>Defense</h2>
+<ol>
+<li><strong>Never trust client-supplied IDs alone</strong> — always join with the authenticated user's ID</li>
+<li>Use non-sequential IDs (UUIDs v4) to slow down enumeration (but this is not a fix — authorization is)</li>
+<li>Test with two accounts: verify user A cannot access user B's resources</li>
+<li>Implement automated BOLA tests in your API test suite</li>
+</ol>
+
+<a href="index.html" class="back-btn">← Back to Lab</a>
+</main>
+</body>
+</html>

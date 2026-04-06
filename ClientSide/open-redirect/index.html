@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Open Redirect Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+
+  <div class="lab-banner">
+    OPEN REDIRECT LAB &mdash; EDUCATIONAL PURPOSES ONLY
+  </div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+
+  <div class="container">
+    <div class="card main-card">
+      <h2>Login Redirect</h2>
+      <p class="subtitle">Secure Corp &trade; — After login, the server redirects to the <code>?next=</code> parameter</p>
+
+      <p class="description">
+        The login page accepts a <code>?next=</code> URL parameter and redirects the user there after
+        successful authentication — without validating that the destination is on the same domain.
+      </p>
+
+      <form id="loginForm" autocomplete="off">
+        <div class="field">
+          <label for="username">Username</label>
+          <input type="text" id="username" value="alice" />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" value="password123" />
+        </div>
+        <div class="field">
+          <label for="nextParam"><code>?next=</code> parameter <span class="field-note">(attacker controls this in the URL)</span></label>
+          <input type="text" id="nextParam" value="https://securecorp.com/dashboard" />
+        </div>
+        <button type="submit" class="btn-primary">Login</button>
+      </form>
+
+      <div class="code-label">Server redirect logic (vulnerable):</div>
+      <code id="codeDisplay" class="code-display">—</code>
+
+      <div id="resultBox" class="result-box hidden"></div>
+
+      <div class="code-label" style="margin-top:16px;">Payloads to try in the <code>?next=</code> field:</div>
+      <div class="hint-list">
+        <span class="hint">https://evil.com/phishing</span>
+        <span class="hint">//evil.com</span>
+        <span class="hint">https://securecorp.com.evil.com</span>
+        <span class="hint">javascript:alert('XSS')</span>
+        <span class="hint">https://securecorp.com/dashboard</span>
+      </div>
+
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dangling DNS — DNS Lab</title><link rel="stylesheet" href="style.css"><style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+<div class="lab-banner">⚠ EDUCATIONAL LAB — SUBDOMAIN &amp; DNS: DANGLING DNS RECORD</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+<div class="container">
+<div class="card main-card">
+  <h2>Dangling DNS Record</h2>
+  <p class="subtitle">CNAME pointing to an unclaimed external service</p>
+  <p class="description">A dangling DNS record points to a resource (cloud storage bucket, CDN origin, SaaS endpoint) that has been deleted but whose DNS record was never removed. Find and claim these orphaned records to serve content under the legitimate domain.</p>
+
+  <div class="step-label">Step 1 — Scan DNS Records</div>
+  <div class="field">
+    <label>Target Domain</label>
+    <input type="text" id="domainInput" value="securecorp.com">
+  </div>
+  <button class="btn-primary" id="scanBtn">Scan DNS Records</button>
+  <div id="dnsTable" class="dns-table hidden"></div>
+
+  <div class="step-label">Step 2 — Verify CNAME Targets</div>
+  <button class="btn-primary" id="verifyBtn">Verify All CNAME Targets</button>
+  <div id="verifyResults" class="verify-results hidden"></div>
+
+  <div class="step-label">Step 3 — Exploit Dangling Record</div>
+  <div class="field">
+    <label>Select dangling record to exploit</label>
+    <select id="danglingSelect"><option value="">— select after scan —</option></select>
+  </div>
+  <button class="btn-primary" id="exploitBtn">Register &amp; Claim</button>
+  <div id="exploitResult" class="hidden result-msg"></div>
+
+  <div id="explanationBox" class="explanation-box hidden"></div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

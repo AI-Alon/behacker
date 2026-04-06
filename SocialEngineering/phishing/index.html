@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Phishing Page — Social Engineering Lab</title><link rel="stylesheet" href="style.css"><style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+<div class="lab-banner">⚠ EDUCATIONAL LAB — SOCIAL ENGINEERING: PHISHING PAGE</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+<div class="container">
+<div class="card main-card">
+  <h2>Phishing Page Clone</h2>
+  <p class="subtitle">Social Engineering — Credential Harvesting</p>
+  <p class="description">Attackers clone legitimate login pages and host them on lookalike domains. Victims enter credentials believing they are on the real site. This lab shows how convincing phishing pages are built and what signals to look for to detect them.</p>
+
+  <div class="toggle-row">
+    <button class="btn-toggle active" id="btnAttacker">Attacker View</button>
+    <button class="btn-toggle" id="btnVictim">Victim View</button>
+  </div>
+
+  <div id="attackerView">
+    <div class="step-label">Configure Phishing Page</div>
+    <div class="field">
+      <label>Target Brand</label>
+      <select id="brandSelect">
+        <option value="github">GitHub</option>
+        <option value="google">Google</option>
+        <option value="microsoft">Microsoft</option>
+        <option value="bank">SecureBank</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Phishing Domain</label>
+      <input type="text" id="phishDomain" value="gîthub.com">
+    </div>
+    <div class="field">
+      <label>Redirect after capture</label>
+      <input type="text" id="redirectUrl" value="https://github.com">
+    </div>
+    <button class="btn-primary" id="buildBtn" style="width:100%">Build Phishing Page</button>
+    <div class="code-label" style="margin-top:16px">Harvested Credentials</div>
+    <div id="harvestedCreds" class="harvested-list"></div>
+  </div>
+
+  <div id="victimView" class="hidden">
+    <div id="phishFrame" class="phish-frame"></div>
+  </div>
+
+  <div id="explanationBox" class="explanation-box hidden"></div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

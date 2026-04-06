@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Workflow Skip (Forced Browsing / Step Bypass) — BEHACKER</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0f14;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:0}
+nav{background:#161b22;border-bottom:1px solid #30363d;padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.nav-brand{color:#c9d1d9;text-decoration:none;font-weight:700;font-size:1.1rem}
+.nav-back{color:#58a6ff;text-decoration:none;font-size:.9rem}
+.nav-back:hover{text-decoration:underline}
+main{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:2rem;font-weight:700;color:#e6edf3;margin-bottom:8px}
+.subtitle{color:#8b949e;font-size:.95rem;margin-bottom:40px}
+h2{font-size:1.3rem;font-weight:600;color:#e6edf3;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid #30363d}
+h3{font-size:1.1rem;font-weight:600;color:#f8c555;margin:24px 0 10px}
+p{line-height:1.7;margin-bottom:14px;color:#c9d1d9}
+ul,ol{margin:0 0 16px 24px;line-height:1.8}
+li{margin-bottom:4px}
+li strong{color:#e6edf3}
+code{background:#161b22;border:1px solid #30363d;border-radius:4px;padding:2px 6px;font-family:'Courier New',monospace;font-size:.88rem;color:#f8c555}
+pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;overflow-x:auto;margin:16px 0 24px}
+pre code{background:none;border:none;padding:0;color:#b5e8a0;font-size:.9rem}
+hr{border:none;border-top:1px solid #30363d;margin:32px 0}
+.back-btn{display:inline-block;margin-top:40px;padding:10px 20px;background:#238636;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:.9rem}
+.back-btn:hover{background:#2ea043}
+strong{color:#e6edf3}
+em{color:#8b949e;font-style:italic}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../../NAVIGATE.html" class="nav-brand">💀 BEHACKER</a>
+  <a href="index.html" class="nav-back">← Back to Lab</a>
+</nav>
+<main>
+<h1>Workflow Skip (Forced Browsing / Step Bypass)</h1>
+
+<h2>What is it?</h2>
+<p>Multi-step workflows (checkout, account verification, 2FA) enforce a logical sequence in the UI. But if the server doesn't independently verify that prerequisite steps were completed, users can navigate directly to any step URL and skip earlier ones — including payment.</p>
+
+<h2>Attack</h2>
+<p>Navigate directly to <code>GET /checkout/step/4/confirm</code> without completing steps 2 (address) and 3 (payment). The server processes the order confirmation anyway because it checks only whether the current step is valid, not whether prior steps were done.</p>
+
+<h2>Real-world impact</h2>
+<ul>
+<li>Skip payment → receive goods for free</li>
+<li>Skip identity verification → change email/phone without proof</li>
+<li>Skip 2FA step → access account with password only</li>
+<li>Skip terms acceptance → bypass legal agreements</li>
+</ul>
+
+<h2>Vulnerable server-side code</h2>
+<pre><code class="language-js">// ❌ Only checks if step 4 endpoint exists — no prerequisite validation
+app.post('/checkout/step/4/confirm', (req, res) =&gt; {
+  createOrder(req.session.cart);  // No check: was payment completed?
+});</code></pre>
+
+<h2>Defense</h2>
+<pre><code class="language-js">// ✅ Server-side state machine
+app.post('/checkout/step/:step', (req, res) =&gt; {
+  const step = parseInt(req.params.step);
+  const session = req.session;
+  // Check all prerequisites
+  if (step &gt;= 2 &amp;&amp; !session.addressComplete) return res.redirect('/checkout/step/2');
+  if (step &gt;= 3 &amp;&amp; !session.paymentComplete) return res.redirect('/checkout/step/3');
+  if (step &gt;= 4 &amp;&amp; !session.paymentVerified) return res.status(403).send('Payment required');
+  // proceed
+});</code></pre>
+<p>Enforce step completion in session state, not URL parameters. Never rely on the client navigating correctly.</p>
+
+<a href="index.html" class="back-btn">← Back to Lab</a>
+</main>
+</body>
+</html>

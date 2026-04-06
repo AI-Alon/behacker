@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Race Condition (TOCTOU) — BEHACKER</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0f14;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:0}
+nav{background:#161b22;border-bottom:1px solid #30363d;padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.nav-brand{color:#c9d1d9;text-decoration:none;font-weight:700;font-size:1.1rem}
+.nav-back{color:#58a6ff;text-decoration:none;font-size:.9rem}
+.nav-back:hover{text-decoration:underline}
+main{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:2rem;font-weight:700;color:#e6edf3;margin-bottom:8px}
+.subtitle{color:#8b949e;font-size:.95rem;margin-bottom:40px}
+h2{font-size:1.3rem;font-weight:600;color:#e6edf3;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid #30363d}
+h3{font-size:1.1rem;font-weight:600;color:#f8c555;margin:24px 0 10px}
+p{line-height:1.7;margin-bottom:14px;color:#c9d1d9}
+ul,ol{margin:0 0 16px 24px;line-height:1.8}
+li{margin-bottom:4px}
+li strong{color:#e6edf3}
+code{background:#161b22;border:1px solid #30363d;border-radius:4px;padding:2px 6px;font-family:'Courier New',monospace;font-size:.88rem;color:#f8c555}
+pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;overflow-x:auto;margin:16px 0 24px}
+pre code{background:none;border:none;padding:0;color:#b5e8a0;font-size:.9rem}
+hr{border:none;border-top:1px solid #30363d;margin:32px 0}
+.back-btn{display:inline-block;margin-top:40px;padding:10px 20px;background:#238636;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:.9rem}
+.back-btn:hover{background:#2ea043}
+strong{color:#e6edf3}
+em{color:#8b949e;font-style:italic}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../../NAVIGATE.html" class="nav-brand">💀 BEHACKER</a>
+  <a href="index.html" class="nav-back">← Back to Lab</a>
+</nav>
+<main>
+<h1>Race Condition (TOCTOU)</h1>
+
+<h2>What is it?</h2>
+<p>A race condition (Time of Check / Time of Use) occurs when a security-relevant check and the subsequent action are not atomic. Multiple concurrent requests can all pass the check before any of them has completed the action — allowing the same resource to be consumed multiple times.</p>
+
+<h2>Classic pattern</h2>
+<pre><code>Thread 1: CHECK balance ($50 &gt;= $50) ✓
+Thread 2: CHECK balance ($50 &gt;= $50) ✓  ← races before T1 deducts
+Thread 1: DEDUCT $50 → balance = $0
+Thread 2: DEDUCT $50 → balance = -$50 ← double-spend!</code></pre>
+
+<h2>Real-world examples</h2>
+<ul>
+<li><strong>Gift card double-spend</strong>: Two simultaneous redemptions drain a card twice</li>
+<li><strong>Crypto exchanges</strong>: Withdraw the same funds to two addresses simultaneously</li>
+<li><strong>Coupon single-use bypass</strong>: Submit the same one-time coupon in parallel</li>
+<li><strong>Voting systems</strong>: Double-vote via concurrent API calls</li>
+<li><strong>CVE-2022-0492</strong>: Linux kernel cgroup race condition → privilege escalation</li>
+</ul>
+
+<h2>Attack execution</h2>
+<p>Tools like Burp Suite's Turbo Intruder, <code>asyncio</code>, or simple browser DevTools Network throttling can send HTTP requests with millisecond precision to hit the race window.</p>
+
+<h2>Defense</h2>
+<pre><code class="language-sql">-- ✅ Atomic check-and-update in one statement
+UPDATE accounts
+SET balance = balance - ?
+WHERE id = ? AND balance &gt;= ?;
+-- If 0 rows affected → insufficient funds (rejected atomically)</code></pre>
+
+<p>Or use database-level pessimistic locking:</p>
+<pre><code class="language-sql">BEGIN TRANSACTION;
+SELECT balance FROM accounts WHERE id = ? FOR UPDATE;  -- locks row
+-- check balance
+UPDATE accounts SET balance = balance - ? WHERE id = ?;
+COMMIT;</code></pre>
+
+<p>In application code: use mutex/semaphore per user ID, or idempotency keys that prevent the same logical operation from executing twice.</p>
+
+<a href="index.html" class="back-btn">← Back to Lab</a>
+</main>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rate Limit Bypass Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+  <div class="lab-banner">RATE LIMIT BYPASS LAB &mdash; EDUCATIONAL PURPOSES ONLY</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+  <div class="container">
+    <div class="card main-card">
+      <h2>OTP Verification</h2>
+      <p class="subtitle">Secure Corp &trade; — Rate limit enforced by IP, read from X-Forwarded-For</p>
+      <p class="description">
+        The server limits OTP guesses to <strong>5 per IP per minute</strong> — but it reads the
+        client IP from the <code>X-Forwarded-For</code> header, which an attacker can set freely.
+      </p>
+
+      <form id="otpForm" autocomplete="off">
+        <div class="field">
+          <label for="otpInput">OTP code (6 digits)</label>
+          <input type="text" id="otpInput" placeholder="000000" maxlength="6" />
+        </div>
+        <div class="field">
+          <label for="xffInput"><code>X-Forwarded-For</code> header <span class="field-note">(attacker controls this)</span></label>
+          <input type="text" id="xffInput" value="1.2.3.4" />
+        </div>
+        <button type="submit" class="btn-primary">Submit OTP</button>
+      </form>
+
+      <button id="autoBtn" class="btn-secondary" style="margin-top:8px;">Auto Brute-Force (rotate IPs)</button>
+
+      <div class="code-label" style="margin-top:16px;">Request log:</div>
+      <div id="requestLog" class="request-log"></div>
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

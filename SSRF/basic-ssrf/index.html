@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Basic SSRF — SSRF Lab</title><link rel="stylesheet" href="style.css"><style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+<div class="lab-banner">⚠ EDUCATIONAL LAB — SERVER-SIDE REQUEST FORGERY: BASIC SSRF</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+<div class="container">
+<div class="card main-card">
+  <h2>Basic SSRF</h2>
+  <p class="subtitle">Server-Side Request Forgery</p>
+  <p class="description">This page fetches a URL on the server side (e.g. to generate a PDF preview or fetch an image). Supply an internal URL to make the server access resources only it can reach — like <code>http://localhost/admin</code> or internal services.</p>
+
+  <div class="field">
+    <label>URL to Fetch (server-side)</label>
+    <input type="text" id="urlInput" placeholder="https://example.com or http://localhost/admin">
+  </div>
+  <div class="code-label">Quick Targets</div>
+  <div class="hint-list">
+    <span class="hint" data-url="https://example.com">Public site</span>
+    <span class="hint" data-url="http://localhost/admin">localhost/admin</span>
+    <span class="hint" data-url="http://127.0.0.1:8080">127.0.0.1:8080</span>
+    <span class="hint" data-url="http://internal-api:3000/users">internal-api</span>
+    <span class="hint" data-url="http://db.internal/status">db.internal</span>
+    <span class="hint" data-url="file:///etc/passwd">file:///etc/passwd</span>
+  </div>
+  <button class="btn-primary" id="fetchBtn" style="margin-top:16px;width:100%">Fetch URL (server-side)</button>
+
+  <div class="code-label" style="margin-top:16px">Server Response</div>
+  <div id="responseBox" class="response-box hidden">
+    <div class="response-bar" id="responseBar"></div>
+    <pre id="responseBody"></pre>
+  </div>
+  <div id="explanationBox" class="explanation-box hidden"></div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

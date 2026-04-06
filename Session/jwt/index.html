@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JWT Attacks Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+
+  <div class="lab-banner">
+    JWT ATTACKS LAB &mdash; EDUCATIONAL PURPOSES ONLY
+  </div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+
+  <div class="container">
+    <div class="card main-card">
+      <h2>API Authentication</h2>
+      <p class="subtitle">Secure Corp &trade; — JWT-based access control with multiple weaknesses</p>
+
+      <!-- Login to get a JWT -->
+      <form id="loginForm" autocomplete="off">
+        <div class="field">
+          <label for="username">Username</label>
+          <input type="text" id="username" placeholder="alice" value="alice" />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="password123" value="password123" />
+        </div>
+        <button type="submit" class="btn-primary">Login &amp; Get JWT</button>
+      </form>
+
+      <div id="errorMsg" class="msg error hidden">Invalid credentials.</div>
+
+      <div id="jwtSection" class="hidden">
+        <div class="code-label">JWT issued by server:</div>
+        <code id="jwtDisplay" class="code-display">—</code>
+
+        <div class="code-label">Decoded JWT (editable — modify claims then re-sign):</div>
+        <div class="jwt-parts">
+          <div>
+            <div class="part-label">Header</div>
+            <textarea id="headerEditor" class="jwt-editor" rows="3"></textarea>
+          </div>
+          <div>
+            <div class="part-label">Payload</div>
+            <textarea id="payloadEditor" class="jwt-editor" rows="5"></textarea>
+          </div>
+        </div>
+
+        <div class="attack-row">
+          <div class="field" style="flex:1;">
+            <label>Attack mode</label>
+            <select id="attackMode">
+              <option value="none">None (re-sign with original secret)</option>
+              <option value="algnone">alg:none — remove signature entirely</option>
+              <option value="bruteforce">Brute-force weak secret</option>
+            </select>
+          </div>
+        </div>
+
+        <button id="forgeBtn" class="btn-secondary">Forge Token &amp; Send Request</button>
+
+        <div class="code-label" style="margin-top:16px;">Forged token sent:</div>
+        <code id="forgedDisplay" class="code-display">—</code>
+
+        <div class="code-label">Server response:</div>
+        <div id="serverResponse" class="server-response"></div>
+      </div>
+
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

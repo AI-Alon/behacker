@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HTML Injection Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+
+  <div class="lab-banner">
+    HTML INJECTION LAB &mdash; EDUCATIONAL PURPOSES ONLY
+  </div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+
+  <div class="container">
+    <div class="card main-card">
+      <h2>User Comment Board</h2>
+      <p class="subtitle">Secure Corp &trade; — Leave a comment below</p>
+
+      <form id="commentForm" autocomplete="off">
+        <div class="field">
+          <label for="nameInput">Name</label>
+          <input type="text" id="nameInput" placeholder="Your name" />
+        </div>
+        <div class="field">
+          <label for="commentInput">Comment</label>
+          <textarea id="commentInput" rows="3" placeholder="Write something..."></textarea>
+        </div>
+        <button type="submit" class="btn-primary">Post Comment</button>
+      </form>
+
+      <div class="rendered-label">Rendered output (innerHTML):</div>
+      <div id="outputBox" class="output-box"></div>
+
+      <div class="raw-label">Raw string stored:</div>
+      <code id="rawDisplay" class="raw-display">—</code>
+
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

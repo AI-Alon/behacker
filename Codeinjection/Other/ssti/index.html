@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SSTI Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+
+  <div class="lab-banner">
+    TEMPLATE INJECTION LAB (SSTI) &mdash; EDUCATIONAL PURPOSES ONLY
+  </div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+
+  <div class="container">
+    <div class="card main-card">
+      <h2>Email Template Preview</h2>
+      <p class="subtitle">Secure Corp &trade; — Preview your personalised email template</p>
+
+      <p class="description">
+        Template variables available: <code>{{name}}</code>, <code>{{role}}</code>, <code>{{date}}</code>
+      </p>
+
+      <form id="templateForm" autocomplete="off">
+        <div class="field">
+          <label for="nameInput">Your Name</label>
+          <input type="text" id="nameInput" placeholder="e.g. Alice" />
+        </div>
+        <div class="field">
+          <label for="templateInput">Template</label>
+          <textarea id="templateInput" rows="4" placeholder="Hello {{name}}, your role is {{role}}."></textarea>
+        </div>
+        <button type="submit" class="btn-primary">Render Preview</button>
+      </form>
+
+      <div class="tpl-label">Template string (server receives):</div>
+      <code id="tplDisplay" class="tpl-display">—</code>
+
+      <div id="outputBox" class="output-box hidden"></div>
+
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

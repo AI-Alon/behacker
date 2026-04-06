@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fat GET Cache Poisoning — BEHACKER</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0f14;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:0}
+nav{background:#161b22;border-bottom:1px solid #30363d;padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.nav-brand{color:#c9d1d9;text-decoration:none;font-weight:700;font-size:1.1rem}
+.nav-back{color:#58a6ff;text-decoration:none;font-size:.9rem}
+.nav-back:hover{text-decoration:underline}
+main{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:2rem;font-weight:700;color:#e6edf3;margin-bottom:8px}
+.subtitle{color:#8b949e;font-size:.95rem;margin-bottom:40px}
+h2{font-size:1.3rem;font-weight:600;color:#e6edf3;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid #30363d}
+h3{font-size:1.1rem;font-weight:600;color:#f8c555;margin:24px 0 10px}
+p{line-height:1.7;margin-bottom:14px;color:#c9d1d9}
+ul,ol{margin:0 0 16px 24px;line-height:1.8}
+li{margin-bottom:4px}
+li strong{color:#e6edf3}
+code{background:#161b22;border:1px solid #30363d;border-radius:4px;padding:2px 6px;font-family:'Courier New',monospace;font-size:.88rem;color:#f8c555}
+pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;overflow-x:auto;margin:16px 0 24px}
+pre code{background:none;border:none;padding:0;color:#b5e8a0;font-size:.9rem}
+hr{border:none;border-top:1px solid #30363d;margin:32px 0}
+.back-btn{display:inline-block;margin-top:40px;padding:10px 20px;background:#238636;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:.9rem}
+.back-btn:hover{background:#2ea043}
+strong{color:#e6edf3}
+em{color:#8b949e;font-style:italic}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../../NAVIGATE.html" class="nav-brand">💀 BEHACKER</a>
+  <a href="index.html" class="nav-back">← Back to Lab</a>
+</nav>
+<main>
+<h1>Fat GET Cache Poisoning</h1>
+
+<h2>What is it?</h2>
+<p>A "fat GET" is a GET request with a request body. Some backend servers (particularly with certain frameworks or proxies) override query parameters with body parameters. If the CDN/cache only keys on the URL, the attacker can send a body-injected value that gets reflected, cached, and served to all users of that URL.</p>
+
+<h2>The desync</h2>
+<pre><code>CDN cache sees:    GET /search?q=shoes   → caches this URL
+Backend sees:      GET /search?q=shoes + body: q=&lt;script&gt;alert(1)&lt;/script&gt;
+                   → uses body param (overrides URL param)
+                   → returns page with injected q
+CDN caches:        &lt;script&gt;alert(1)&lt;/script&gt; under key /search?q=shoes
+Victim gets:       Clean URL /search?q=shoes → poisoned response</code></pre>
+
+<h2>When servers accept GET bodies</h2>
+<ul>
+<li>Some PHP frameworks: <code>$_POST</code> takes precedence</li>
+<li>Python <code>requests</code>: body is ignored for GET by default, but some servers accept it</li>
+<li>Some Java servlet containers process body even for GET</li>
+<li>Reverse proxies that strip/forward bodies differently</li>
+</ul>
+
+<h2>Detection</h2>
+<p>Use Burp Suite Param Miner or manual testing: send GET with body containing a unique canary value. If the canary appears in the response, the server processes GET bodies.</p>
+
+<h2>Defense</h2>
+<ul>
+<li>Configure CDN/cache to reject or normalize GET requests with bodies</li>
+<li>Ensure backend framework ignores body parameters in GET requests</li>
+<li>Add body content to cache keys if body processing is intentional</li>
+<li>Use strict HTTP method semantics: GET must be idempotent and have no body side effects</li>
+</ul>
+
+<a href="index.html" class="back-btn">← Back to Lab</a>
+</main>
+</body>
+</html>

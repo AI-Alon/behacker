@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Password Reset Poisoning — How It Works — BEHACKER</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0f14;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:0}
+nav{background:#161b22;border-bottom:1px solid #30363d;padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.nav-brand{color:#c9d1d9;text-decoration:none;font-weight:700;font-size:1.1rem}
+.nav-back{color:#58a6ff;text-decoration:none;font-size:.9rem}
+.nav-back:hover{text-decoration:underline}
+main{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:2rem;font-weight:700;color:#e6edf3;margin-bottom:8px}
+.subtitle{color:#8b949e;font-size:.95rem;margin-bottom:40px}
+h2{font-size:1.3rem;font-weight:600;color:#e6edf3;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid #30363d}
+h3{font-size:1.1rem;font-weight:600;color:#f8c555;margin:24px 0 10px}
+p{line-height:1.7;margin-bottom:14px;color:#c9d1d9}
+ul,ol{margin:0 0 16px 24px;line-height:1.8}
+li{margin-bottom:4px}
+li strong{color:#e6edf3}
+code{background:#161b22;border:1px solid #30363d;border-radius:4px;padding:2px 6px;font-family:'Courier New',monospace;font-size:.88rem;color:#f8c555}
+pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;overflow-x:auto;margin:16px 0 24px}
+pre code{background:none;border:none;padding:0;color:#b5e8a0;font-size:.9rem}
+hr{border:none;border-top:1px solid #30363d;margin:32px 0}
+.back-btn{display:inline-block;margin-top:40px;padding:10px 20px;background:#238636;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:.9rem}
+.back-btn:hover{background:#2ea043}
+strong{color:#e6edf3}
+em{color:#8b949e;font-style:italic}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../../NAVIGATE.html" class="nav-brand">💀 BEHACKER</a>
+  <a href="index.html" class="nav-back">← Back to Lab</a>
+</nav>
+<main>
+<h1>Password Reset Poisoning — How It Works</h1>
+
+<h2>Normal reset flow (safe)</h2>
+
+<p>The server generates a reset link using a hardcoded base URL from config:</p>
+
+<pre><code class="language-js">const resetLink = `https://securecorp.com/reset?token=${token}`;</code></pre>
+
+<p>The domain is fixed — user input cannot influence it.</p>
+
+<hr>
+
+<h2>Vulnerable reset flow</h2>
+
+<p>The server trusts the <code>Host</code> header to build the reset URL:</p>
+
+<pre><code class="language-js">const host      = req.headers['host'];          // ← attacker-controlled
+const resetLink = `https://${host}/reset?token=${token}`;
+sendEmail(user.email, resetLink);</code></pre>
+
+<hr>
+
+<h2>The attack</h2>
+
+<ol>
+<li>Attacker triggers a reset for the victim's account</li>
+<li>Attacker intercepts the request (Burp Suite) and changes the <code>Host</code> header:</li>
+</ol>
+<p>   ```</p>
+<p>   Host: evil.com</p>
+<p>   ```</p>
+<ol>
+<li>Server builds: <code>https://evil.com/reset?token=a3f9c2e1...</code></li>
+<li>Victim receives a genuine email from <code>no-reply@securecorp.com</code></li>
+<li>Victim clicks the link — request goes to <code>evil.com</code> with the token in the URL</li>
+<li>Attacker captures the token from their server logs</li>
+<li>Attacker visits <code>https://securecorp.com/reset?token=a3f9c2e1...</code> and resets the password</li>
+</ol>
+
+<hr>
+
+<h2>Variants</h2>
+
+<pre><code># Also check for:
+X-Forwarded-Host: evil.com
+X-Original-URL: https://evil.com/reset
+X-Rewrite-URL: /reset
+
+# Some servers trust these proxy headers over the real Host</code></pre>
+
+<hr>
+
+<h2>The Fix</h2>
+
+<pre><code class="language-js">// Never build URLs from request headers
+
+// Safe: read base URL from environment config
+const BASE_URL   = process.env.APP_URL; // e.g. "https://securecorp.com"
+const resetLink  = `${BASE_URL}/reset?token=${token}`;
+
+// Also: validate the Host header against an allowlist if it must be used
+const ALLOWED_HOSTS = ["securecorp.com", "www.securecorp.com"];
+if (!ALLOWED_HOSTS.includes(req.headers.host)) {
+  return res.status(400).send("Invalid host");
+}</code></pre>
+
+<p>The domain used in reset emails must never be derived from user-supplied input.</p>
+
+<a href="index.html" class="back-btn">← Back to Lab</a>
+</main>
+</body>
+</html>

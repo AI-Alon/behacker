@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Insecure Randomness Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+  <div class="lab-banner">INSECURE RANDOMNESS LAB &mdash; EDUCATIONAL PURPOSES ONLY</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+  <div class="container">
+    <div class="card main-card">
+      <h2>Password Reset Tokens</h2>
+      <p class="subtitle">Secure Corp &trade; — Reset tokens generated with Math.random()</p>
+      <p class="description">
+        The server generates password reset tokens using <code>Math.random()</code> seeded with
+        the current timestamp. Given a known token and its generation time, an attacker can
+        reconstruct the seed and predict all tokens issued in the same millisecond window.
+      </p>
+
+      <div class="step-label">Step 1 — Observe a token issued to your own account</div>
+      <form id="requestForm" autocomplete="off">
+        <div class="field">
+          <label for="emailInput">Your email</label>
+          <input type="text" id="emailInput" value="alice@securecorp.com" />
+        </div>
+        <button type="submit" class="btn-primary">Request Password Reset</button>
+      </form>
+
+      <div id="tokenSection" class="hidden">
+        <div class="code-label">Token issued (visible in email URL):</div>
+        <code id="tokenDisplay" class="code-display">—</code>
+
+        <div class="step-label" style="margin-top:20px;">Step 2 — Predict the admin's token (issued at same time)</div>
+        <p class="description" style="margin-bottom:12px;">
+          The server issued the admin token in the same millisecond. Since the seed is the timestamp,
+          the PRNG state is the same — predict the next token.
+        </p>
+        <button id="predictBtn" class="btn-secondary">Predict Admin Reset Token</button>
+
+        <div id="predictResult" class="hidden">
+          <div class="code-label">Predicted admin token:</div>
+          <code id="predictedToken" class="code-display">—</code>
+          <div class="msg success" id="verifyResult" style="margin-top:8px;"></div>
+        </div>
+      </div>
+
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lab Navigator — BEHACKER</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0d0f14; color: #c9d1d9; font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+
+/* NAV */
+nav { background: #161b22; border-bottom: 1px solid #30363d; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 200; flex-shrink: 0; }
+.nav-brand { font-size: 1.05rem; font-weight: 700; color: #e6edf3; display: flex; align-items: center; gap: 8px; text-decoration: none; }
+.nav-links a { color: #8b949e; text-decoration: none; font-size: 0.875rem; padding: 6px 12px; border-radius: 6px; transition: all 0.15s; }
+.nav-links a:hover { color: #c9d1d9; background: #21262d; }
+
+/* LAYOUT */
+.app { display: flex; flex: 1; min-height: 0; }
+
+/* SIDEBAR */
+.sidebar { width: 240px; background: #161b22; border-right: 1px solid #30363d; display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
+.sidebar-title { font-size: 0.7rem; color: #484f58; text-transform: uppercase; letter-spacing: 0.12em; padding: 18px 16px 8px; font-weight: 600; }
+.cat-btn { display: flex; align-items: center; gap: 10px; width: 100%; background: none; border: none; padding: 8px 16px; cursor: pointer; font-size: 0.82rem; color: #8b949e; text-align: left; transition: all 0.12s; border-left: 2px solid transparent; }
+.cat-btn:hover { background: #0d1117; color: #c9d1d9; }
+.cat-btn.active { background: #0d1117; color: #e6edf3; border-left-color: #b91c1c; }
+.cat-btn .cb-icon { font-size: 1rem; width: 20px; flex-shrink: 0; }
+.cat-btn .cb-label { flex: 1; }
+.cat-btn .cb-count { font-size: 0.7rem; background: #21262d; border-radius: 10px; padding: 1px 7px; color: #8b949e; }
+
+/* MAIN */
+.main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+
+/* TOOLBAR */
+.toolbar { background: #161b22; border-bottom: 1px solid #30363d; padding: 12px 20px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; flex-wrap: wrap; }
+.search-wrap { position: relative; flex: 1; min-width: 200px; }
+.search-wrap .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #484f58; font-size: 0.9rem; pointer-events: none; }
+#searchInput { width: 100%; background: #0d1117; border: 1px solid #30363d; border-radius: 8px; color: #e6edf3; font-size: 0.9rem; padding: 9px 12px 9px 36px; outline: none; transition: border-color 0.15s; font-family: inherit; }
+#searchInput:focus { border-color: #58a6ff; }
+#searchInput::placeholder { color: #484f58; }
+.filter-group { display: flex; gap: 6px; flex-wrap: wrap; }
+.filter-btn { background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #8b949e; font-size: 0.78rem; padding: 6px 12px; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+.filter-btn:hover { border-color: #58a6ff; color: #c9d1d9; }
+.filter-btn.active { background: #b91c1c22; border-color: #b91c1c; color: #fca5a5; }
+.results-count { font-size: 0.78rem; color: #484f58; white-space: nowrap; margin-left: auto; }
+
+/* LAB GRID */
+.lab-area { flex: 1; overflow-y: auto; padding: 20px; }
+.section-header { font-size: 0.78rem; color: #f8c555; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; margin: 8px 0 12px; display: flex; align-items: center; gap: 10px; }
+.section-header::after { content: ''; flex: 1; height: 1px; background: #21262d; }
+.lab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 28px; }
+
+/* LAB CARD */
+.lab-card { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 16px; cursor: pointer; transition: all 0.15s; display: flex; flex-direction: column; gap: 10px; text-decoration: none; position: relative; overflow: hidden; }
+.lab-card:hover { border-color: #58a6ff; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+.lab-card:hover .open-arrow { opacity: 1; transform: translateX(0); }
+.lab-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.lab-cat-badge { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 3px; flex-shrink: 0; }
+.open-arrow { opacity: 0; transform: translateX(-4px); transition: all 0.15s; font-size: 0.8rem; color: #58a6ff; flex-shrink: 0; }
+.lab-name { font-size: 0.92rem; font-weight: 600; color: #e6edf3; line-height: 1.35; }
+.lab-desc { font-size: 0.78rem; color: #8b949e; line-height: 1.5; flex: 1; }
+.lab-footer { display: flex; align-items: center; justify-content: space-between; }
+.lab-path { font-family: 'Courier New', monospace; font-size: 0.7rem; color: #484f58; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lab-open-btn { font-size: 0.72rem; background: #238636; color: #fff; border: none; border-radius: 4px; padding: 3px 10px; cursor: pointer; font-family: inherit; transition: background 0.15s; flex-shrink: 0; }
+.lab-open-btn:hover { background: #2ea043; }
+
+/* EMPTY STATE */
+.empty { text-align: center; padding: 80px 20px; }
+.empty .e-icon { font-size: 3rem; margin-bottom: 12px; }
+.empty h3 { font-size: 1rem; color: #e6edf3; margin-bottom: 6px; }
+.empty p { font-size: 0.85rem; color: #8b949e; }
+
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .lab-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="HOME.html" class="nav-brand">💀 BEHACKER</a>
+  <div class="nav-links">
+    <a href="HOME.html">← Home</a>
+  </div>
+</nav>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-title">Categories</div>
+    <button class="cat-btn active" data-cat="all">
+      <span class="cb-icon">🔬</span>
+      <span class="cb-label">All Labs</span>
+      <span class="cb-count" id="countAll">0</span>
+    </button>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search labs, techniques, CVEs…" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="filter-group" id="filterGroup">
+        <button class="filter-btn active" data-difficulty="all">All</button>
+        <button class="filter-btn" data-difficulty="beginner">Beginner</button>
+        <button class="filter-btn" data-difficulty="intermediate">Intermediate</button>
+        <button class="filter-btn" data-difficulty="advanced">Advanced</button>
+      </div>
+      <span class="results-count" id="resultsCount"></span>
+    </div>
+    <div class="lab-area" id="labArea"></div>
+  </div>
+</div>
+
+<script>
+const LABS = [
+  // Code Injection
+  { name: 'SQL Injection — Login Bypass',    cat: 'Code Injection',        icon: '💉', difficulty: 'beginner',     path: 'Codeinjection/SQL/login/index.html',                 desc: 'Bypass the login form using classic SQL injection payloads like \' OR 1=1--',            tags: ['sql','injection','login','bypass','owasp'] },
+  { name: 'SQL Injection — URL Parameter',   cat: 'Code Injection',        icon: '💉', difficulty: 'beginner',     path: 'Codeinjection/SQL/url/index.html',                   desc: 'Inject into a URL query parameter to extract data from the database.',                  tags: ['sql','injection','url','parameter','union'] },
+  { name: 'SQL Injection — Search Box',      cat: 'Code Injection',        icon: '💉', difficulty: 'beginner',     path: 'Codeinjection/SQL/search/index.html',                desc: 'Exploit a vulnerable search field to enumerate database contents.',                     tags: ['sql','injection','search','enumeration'] },
+  { name: 'HTML Injection',                  cat: 'Code Injection',        icon: '💉', difficulty: 'beginner',     path: 'Codeinjection/Other/html/index.html',                      desc: 'Inject arbitrary HTML into the page to deface content or phish users.',                tags: ['html','injection','xss','deface'] },
+  { name: 'JavaScript Injection',            cat: 'Code Injection',        icon: '💉', difficulty: 'beginner',     path: 'Codeinjection/Other/js/index.html',                        desc: 'Inject and execute JavaScript through an unvalidated input field.',                    tags: ['js','javascript','injection','eval'] },
+  { name: 'Command Injection',               cat: 'Code Injection',        icon: '💉', difficulty: 'intermediate', path: 'Codeinjection/Other/command/index.html',                   desc: 'Simulate OS command execution by injecting shell metacharacters.',                     tags: ['command','injection','rce','shell','os'] },
+  { name: 'Server-Side Template Injection',  cat: 'Code Injection',        icon: '💉', difficulty: 'advanced',     path: 'Codeinjection/Other/ssti/index.html',                      desc: 'Inject into template engine expressions to execute arbitrary code.',                   tags: ['ssti','template','injection','rce','jinja','twig'] },
+  // XSS
+  { name: 'Reflected XSS',                   cat: 'XSS',                   icon: '🔴', difficulty: 'beginner',     path: 'XSS/reflected/index.html',                           desc: 'Craft a payload that is echoed directly into the HTML response.',                      tags: ['xss','reflected','script','alert','owasp'] },
+  { name: 'Stored XSS',                      cat: 'XSS',                   icon: '🔴', difficulty: 'intermediate', path: 'XSS/stored/index.html',                              desc: 'Store a malicious payload that executes for every visitor of the page.',               tags: ['xss','stored','persistent','localstorage'] },
+  { name: 'DOM-Based XSS',                   cat: 'XSS',                   icon: '🔴', difficulty: 'intermediate', path: 'XSS/dom/index.html',                                 desc: 'Exploit client-side JavaScript that reads from location.hash without sanitisation.',  tags: ['xss','dom','hash','innerhtml','client-side'] },
+  // Authentication
+  { name: 'Brute Force Login',               cat: 'Authentication',        icon: '🔑', difficulty: 'beginner',     path: 'Authentication/bruteforce/index.html',               desc: 'Automate credential guessing with an animated wordlist attack.',                       tags: ['brute','force','password','wordlist','authentication'] },
+  { name: 'Credential Stuffing',             cat: 'Authentication',        icon: '🔑', difficulty: 'beginner',     path: 'Authentication/credential-stuffing/index.html',      desc: 'Replay a leaked breach dump against a target login endpoint.',                         tags: ['credential','stuffing','breach','leak','combolist'] },
+  { name: 'Default Credentials',             cat: 'Authentication',        icon: '🔑', difficulty: 'beginner',     path: 'Authentication/default-credentials/index.html',      desc: 'Try common factory-default username/password pairs against the login.',                tags: ['default','credentials','admin','root','authentication'] },
+  { name: 'Password Reset Poisoning',        cat: 'Authentication',        icon: '🔑', difficulty: 'intermediate', path: 'Authentication/password-reset/index.html',           desc: 'Manipulate the Host header to redirect password reset links to attacker-controlled domain.', tags: ['password','reset','host','header','poisoning'] },
+  // Session
+  { name: 'Session Fixation',                cat: 'Session & Cookies',     icon: '🍪', difficulty: 'intermediate', path: 'Session/fixation/index.html',                        desc: 'Force a known session ID onto a victim before they authenticate.',                     tags: ['session','fixation','cookie','hijack'] },
+  { name: 'Cookie Tampering',                cat: 'Session & Cookies',     icon: '🍪', difficulty: 'beginner',     path: 'Session/cookie-tampering/index.html',                desc: 'Decode, modify, and re-encode a base64 cookie to escalate privileges.',                tags: ['cookie','tampering','base64','privilege','session'] },
+  { name: 'JWT Attacks',                     cat: 'Session & Cookies',     icon: '🍪', difficulty: 'advanced',     path: 'Session/jwt/index.html',                             desc: 'Exploit alg:none, brute-force the secret, and forge JWT claims.',                     tags: ['jwt','token','alg','none','hs256','brute','claims'] },
+  // Access Control
+  { name: 'IDOR',                            cat: 'Access Control',        icon: '🚪', difficulty: 'beginner',     path: 'AccessControl/idor/index.html',                      desc: 'Access other users\' invoices by incrementing the resource ID.',                       tags: ['idor','insecure','direct','object','reference','access','control'] },
+  { name: 'Privilege Escalation',            cat: 'Access Control',        icon: '🚪', difficulty: 'intermediate', path: 'AccessControl/privilege-escalation/index.html',      desc: 'Call admin-only API endpoints as a regular user.',                                     tags: ['privilege','escalation','admin','access','control'] },
+  { name: 'Forced Browsing',                 cat: 'Access Control',        icon: '🚪', difficulty: 'beginner',     path: 'AccessControl/forced-browsing/index.html',           desc: 'Navigate directly to hidden paths not linked from the application.',                  tags: ['forced','browsing','hidden','path','access'] },
+  // Client-Side
+  { name: 'Clickjacking',                    cat: 'Client-Side',           icon: '🖱️', difficulty: 'beginner',     path: 'ClientSide/clickjacking/index.html',                 desc: 'Overlay an invisible iframe to trick users into clicking hidden buttons.',             tags: ['clickjacking','iframe','opacity','ui','redress'] },
+  { name: 'CSRF',                            cat: 'Client-Side',           icon: '🖱️', difficulty: 'intermediate', path: 'ClientSide/csrf/index.html',                         desc: 'Forge a cross-origin request that executes on behalf of the authenticated victim.',   tags: ['csrf','cross-site','request','forgery','token'] },
+  { name: 'Open Redirect',                   cat: 'Client-Side',           icon: '🖱️', difficulty: 'beginner',     path: 'ClientSide/open-redirect/index.html',                desc: 'Bypass redirect validation to send users to attacker-controlled URLs.',               tags: ['redirect','open','bypass','phishing','url'] },
+  // DoS
+  { name: 'ReDoS',                           cat: 'Denial of Service',     icon: '💣', difficulty: 'intermediate', path: 'DoS/redos/index.html',                               desc: 'Trigger catastrophic backtracking in a vulnerable regular expression.',               tags: ['redos','regex','dos','backtracking','catastrophic'] },
+  { name: 'Resource Exhaustion',             cat: 'Denial of Service',     icon: '💣', difficulty: 'beginner',     path: 'DoS/resource-exhaustion/index.html',                 desc: 'Flood the server with massive payloads to exhaust processing resources.',             tags: ['dos','resource','exhaustion','flood','payload'] },
+  // File & Path
+  { name: 'Path Traversal',                  cat: 'File & Path',           icon: '📁', difficulty: 'beginner',     path: 'FileAndPath/path-traversal/index.html',              desc: 'Read files outside the web root using ../../ directory traversal sequences.',          tags: ['path','traversal','lfi','etc','passwd','directory'] },
+  { name: 'File Upload Bypass',              cat: 'File & Path',           icon: '📁', difficulty: 'intermediate', path: 'FileAndPath/file-upload/index.html',                 desc: 'Upload a malicious script disguised as an image using extension and MIME tricks.',    tags: ['file','upload','bypass','extension','mime','shell'] },
+  { name: 'XXE',                             cat: 'File & Path',           icon: '📁', difficulty: 'advanced',     path: 'FileAndPath/xxe/index.html',                         desc: 'Inject XML external entities to read local files, perform SSRF, or trigger DoS.',    tags: ['xxe','xml','external','entity','ssrf','billion','laughs'] },
+  // Info Disclosure
+  { name: 'Directory Listing',              cat: 'Info Disclosure',        icon: '🔍', difficulty: 'beginner',     path: 'InformationDisclosure/directory-listing/index.html', desc: 'Browse the server\'s file system via an enabled directory index page.',               tags: ['directory','listing','apache','nginx','autoindex'] },
+  { name: 'Error Message Leakage',          cat: 'Info Disclosure',        icon: '🔍', difficulty: 'beginner',     path: 'InformationDisclosure/error-leakage/index.html',     desc: 'Trigger verbose stack traces that expose internal paths, DB credentials, and versions.', tags: ['error','stack','trace','leakage','disclosure','debug'] },
+  { name: 'Source Code Exposure',           cat: 'Info Disclosure',        icon: '🔍', difficulty: 'intermediate', path: 'InformationDisclosure/source-code-exposure/index.html', desc: 'Fetch .git/config, .env, backup files, and source maps from the web root.',          tags: ['source','code','git','env','exposure','backup','map'] },
+  // API
+  { name: 'Mass Assignment',                cat: 'API Security',           icon: '🔌', difficulty: 'intermediate', path: 'API/mass-assignment/index.html',                     desc: 'Inject extra fields (role, isAdmin, balance) into an API body to overwrite protected properties.', tags: ['mass','assignment','api','role','admin','json','body'] },
+  { name: 'API Key Exposure',               cat: 'API Security',           icon: '🔌', difficulty: 'beginner',     path: 'API/api-key-exposure/index.html',                    desc: 'Find API keys, tokens, and secrets hardcoded in JS bundles via DevTools simulation.',tags: ['api','key','exposure','devtools','bundle','secret','stripe','aws'] },
+  { name: 'Rate Limit Bypass',              cat: 'API Security',           icon: '🔌', difficulty: 'intermediate', path: 'API/rate-limit-bypass/index.html',                   desc: 'Brute-force an OTP by rotating X-Forwarded-For to bypass per-IP rate limits.',       tags: ['rate','limit','bypass','otp','ip','header','forwarded'] },
+  { name: 'GraphQL Introspection',          cat: 'API Security',           icon: '🔌', difficulty: 'intermediate', path: 'API/graphql-introspection/index.html',               desc: 'Use introspection to enumerate hidden admin queries and call them without authorization.', tags: ['graphql','introspection','schema','admin','query','mutation'] },
+  { name: 'Broken Object-Level Auth',       cat: 'API Security',           icon: '🔌', difficulty: 'beginner',     path: 'API/broken-object-auth/index.html',                  desc: 'Access another user\'s API resources by changing the object ID — BOLA/IDOR.',        tags: ['bola','idor','broken','object','auth','api','owasp'] },
+  // Crypto
+  { name: 'Weak Hashing',                   cat: 'Cryptography',          icon: '🔐', difficulty: 'beginner',     path: 'Crypto/weak-hashing/index.html',                     desc: 'Crack MD5 password hashes using a rainbow table and wordlist attack.',               tags: ['md5','sha1','hash','rainbow','table','crack','bcrypt'] },
+  { name: 'Hardcoded Secrets',              cat: 'Cryptography',          icon: '🔐', difficulty: 'beginner',     path: 'Crypto/hardcoded-secrets/index.html',                desc: 'Extract API keys, tokens, and credentials baked into JavaScript bundles.',           tags: ['hardcoded','secrets','api','key','bundle','git','trufflehog'] },
+  { name: 'Insecure Randomness',            cat: 'Cryptography',          icon: '🔐', difficulty: 'intermediate', path: 'Crypto/insecure-randomness/index.html',              desc: 'Predict a reset token generated with Math.random() by brute-forcing the timestamp seed.', tags: ['random','math','prng','token','predict','csprng'] },
+  { name: 'Padding Oracle',                 cat: 'Cryptography',          icon: '🔐', difficulty: 'advanced',     path: 'Crypto/padding-oracle/index.html',                   desc: 'Flip AES-CBC IV bytes to forge an admin cookie without knowing the encryption key.',  tags: ['padding','oracle','aes','cbc','pkcs7','crypto','poodle'] },
+  // Business Logic
+  { name: 'Negative Price',                 cat: 'Business Logic',        icon: '🛒', difficulty: 'beginner',     path: 'BusinessLogic/negative-price/index.html',            desc: 'Submit a negative quantity to make the order total negative and receive a refund.',   tags: ['negative','price','business','logic','quantity','validation'] },
+  { name: 'Coupon Stacking',                cat: 'Business Logic',        icon: '🛒', difficulty: 'beginner',     path: 'BusinessLogic/coupon-stacking/index.html',           desc: 'Apply the same discount code repeatedly — the server never checks for duplicates.',   tags: ['coupon','stacking','discount','duplicate','business','logic'] },
+  { name: 'Workflow Skip',                  cat: 'Business Logic',        icon: '🛒', difficulty: 'intermediate', path: 'BusinessLogic/workflow-skip/index.html',             desc: 'Navigate directly to the order confirmation step, bypassing the payment step entirely.', tags: ['workflow','skip','checkout','payment','bypass','step'] },
+  { name: 'Race Condition',                 cat: 'Business Logic',        icon: '🛒', difficulty: 'advanced',     path: 'BusinessLogic/race-condition/index.html',            desc: 'Fire concurrent requests to spend the same balance multiple times via TOCTOU.',       tags: ['race','condition','toctou','concurrent','balance','transfer'] },
+  // SSRF
+  { name: 'Basic SSRF',                     cat: 'SSRF',                  icon: '🌐', difficulty: 'intermediate', path: 'SSRF/basic-ssrf/index.html',                         desc: 'Make the server fetch internal URLs including localhost, file://, and private APIs.',  tags: ['ssrf','server-side','request','forgery','localhost','internal'] },
+  { name: 'Cloud Metadata SSRF',            cat: 'SSRF',                  icon: '🌐', difficulty: 'intermediate', path: 'SSRF/cloud-metadata/index.html',                     desc: 'Hit the AWS EC2 metadata endpoint to steal IAM credentials via SSRF.',              tags: ['ssrf','cloud','metadata','aws','iam','credentials','169.254.169.254'] },
+  { name: 'SSRF Filter Bypass',             cat: 'SSRF',                  icon: '🌐', difficulty: 'advanced',     path: 'SSRF/filter-bypass/index.html',                      desc: 'Circumvent blocklists using decimal IP, hex, octal, IPv6, and DNS tricks.',          tags: ['ssrf','filter','bypass','decimal','hex','nip.io','ipv6','allowlist'] },
+  // Prototype Pollution
+  { name: 'Client-Side Prototype Pollution',cat: 'Prototype Pollution',   icon: '☠️', difficulty: 'intermediate', path: 'PrototypePollution/client-side/index.html',          desc: 'Inject __proto__ via query string or JSON merge to pollute Object.prototype.',       tags: ['prototype','pollution','proto','object','javascript','merge'] },
+  { name: 'Gadget Chain',                   cat: 'Prototype Pollution',   icon: '☠️', difficulty: 'advanced',     path: 'PrototypePollution/gadget-chain/index.html',         desc: 'Chain prototype pollution to an innerHTML gadget to trigger XSS.',                   tags: ['prototype','gadget','chain','xss','innerhtml','lodash'] },
+  { name: 'Server-Side Prototype Pollution',cat: 'Prototype Pollution',   icon: '☠️', difficulty: 'advanced',     path: 'PrototypePollution/server-side/index.html',          desc: 'Pollute Node.js Object.prototype via API body — affects all users\' requests.',      tags: ['prototype','pollution','node','server','rce','merge'] },
+  // Web Cache
+  { name: 'Cache Key Manipulation',         cat: 'Web Cache Poisoning',   icon: '📦', difficulty: 'advanced',     path: 'WebCache/cache-key-manipulation/index.html',         desc: 'Inject X-Forwarded-Host to poison a cached page with a malicious script URL.',       tags: ['cache','poisoning','key','x-forwarded-host','cdn'] },
+  { name: 'Stored Cache Poisoning',         cat: 'Web Cache Poisoning',   icon: '📦', difficulty: 'advanced',     path: 'WebCache/stored-poisoning/index.html',               desc: 'Reflect a malicious query param into the response and cache it for all visitors.',   tags: ['cache','poisoning','stored','xss','utm','reflect'] },
+  { name: 'Fat GET Poisoning',              cat: 'Web Cache Poisoning',   icon: '📦', difficulty: 'advanced',     path: 'WebCache/fat-get-poisoning/index.html',              desc: 'Smuggle a body into a GET request to override params and poison the cache.',         tags: ['fat','get','cache','poisoning','body','smuggling'] },
+  // DNS
+  { name: 'Subdomain Takeover',             cat: 'DNS & Subdomain',       icon: '🌍', difficulty: 'intermediate', path: 'DNS/subdomain-takeover/index.html',                  desc: 'Enumerate dangling CNAMEs and claim the abandoned cloud resource.',                  tags: ['subdomain','takeover','cname','github','netlify','heroku','dns'] },
+  { name: 'DNS Rebinding',                  cat: 'DNS & Subdomain',       icon: '🌍', difficulty: 'advanced',     path: 'DNS/dns-rebinding/index.html',                       desc: 'Swap DNS resolution mid-session to bypass the Same-Origin Policy.',                 tags: ['dns','rebinding','ttl','same-origin','localhost','sop'] },
+  { name: 'Dangling DNS Record',            cat: 'DNS & Subdomain',       icon: '🌍', difficulty: 'intermediate', path: 'DNS/dangling-dns/index.html',                        desc: 'Find CNAME records pointing to unclaimed external services in the DNS zone.',        tags: ['dangling','dns','cname','takeover','zone','record'] },
+  // Social Engineering
+  { name: 'Phishing Page',                  cat: 'Social Engineering',    icon: '🎭', difficulty: 'beginner',     path: 'SocialEngineering/phishing/index.html',              desc: 'Clone a brand login page on a homograph domain to harvest credentials.',             tags: ['phishing','clone','credential','harvest','homograph','fido2'] },
+  { name: 'Pretexting',                     cat: 'Social Engineering',    icon: '🎭', difficulty: 'beginner',     path: 'SocialEngineering/pretexting/index.html',            desc: 'Build a fake IT helpdesk or CEO fraud scenario to extract sensitive information.',   tags: ['pretexting','social','engineering','bec','ceo','fraud','it'] },
+  { name: 'QR Code Redirect',               cat: 'Social Engineering',    icon: '🎭', difficulty: 'beginner',     path: 'SocialEngineering/qr-redirect/index.html',           desc: 'Generate a malicious QR code that looks legitimate but points to a phishing site.',  tags: ['qr','code','redirect','qrishing','phishing','physical'] },
+];
+
+const CATEGORY_COLORS = {
+  'Code Injection':        '#f97316',
+  'XSS':                   '#ef4444',
+  'Authentication':        '#a855f7',
+  'Session & Cookies':     '#ec4899',
+  'Access Control':        '#3b82f6',
+  'Client-Side':           '#06b6d4',
+  'Denial of Service':     '#f59e0b',
+  'File & Path':           '#84cc16',
+  'Info Disclosure':       '#14b8a6',
+  'API Security':          '#6366f1',
+  'Cryptography':          '#8b5cf6',
+  'Business Logic':        '#f59e0b',
+  'SSRF':                  '#0ea5e9',
+  'Prototype Pollution':   '#dc2626',
+  'Web Cache Poisoning':   '#10b981',
+  'DNS & Subdomain':       '#06b6d4',
+  'Social Engineering':    '#e879f9',
+};
+
+// State
+let currentCat = 'all';
+let currentDifficulty = 'all';
+let searchQuery = '';
+
+// Build sidebar
+const sidebar = document.getElementById('sidebar');
+const categories = [...new Set(LABS.map(l => l.cat))];
+
+document.getElementById('countAll').textContent = LABS.length;
+
+categories.forEach(cat => {
+  const btn = document.createElement('button');
+  btn.className = 'cat-btn';
+  btn.dataset.cat = cat;
+  const count = LABS.filter(l => l.cat === cat).length;
+  const icon = LABS.find(l => l.cat === cat)?.icon || '🔬';
+  btn.innerHTML = `<span class="cb-icon">${icon}</span><span class="cb-label">${cat}</span><span class="cb-count">${count}</span>`;
+  btn.addEventListener('click', () => { currentCat = cat; updateFilter(); });
+  sidebar.appendChild(btn);
+});
+
+// Sidebar click
+sidebar.addEventListener('click', e => {
+  const btn = e.target.closest('.cat-btn');
+  if (!btn) return;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentCat = btn.dataset.cat;
+  render();
+});
+
+// Search
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchQuery = e.target.value.toLowerCase();
+  render();
+});
+
+// Difficulty filter
+document.getElementById('filterGroup').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentDifficulty = btn.dataset.difficulty;
+  render();
+});
+
+function updateFilter() { render(); }
+
+function filterLabs() {
+  return LABS.filter(lab => {
+    const matchCat = currentCat === 'all' || lab.cat === currentCat;
+    const matchDiff = currentDifficulty === 'all' || lab.difficulty === currentDifficulty;
+    const matchSearch = !searchQuery || (
+      lab.name.toLowerCase().includes(searchQuery) ||
+      lab.desc.toLowerCase().includes(searchQuery) ||
+      lab.cat.toLowerCase().includes(searchQuery) ||
+      lab.tags.some(t => t.includes(searchQuery)) ||
+      lab.difficulty.includes(searchQuery)
+    );
+    return matchCat && matchDiff && matchSearch;
+  });
+}
+
+function openLab(path) {
+  window.open(path, '_blank');
+}
+
+function render() {
+  const area = document.getElementById('labArea');
+  const filtered = filterLabs();
+
+  document.getElementById('resultsCount').textContent = `${filtered.length} lab${filtered.length !== 1 ? 's' : ''}`;
+
+  if (filtered.length === 0) {
+    area.innerHTML = `<div class="empty"><div class="e-icon">🔍</div><h3>No labs found</h3><p>Try a different search term or category.</p></div>`;
+    return;
+  }
+
+  // Group by category if showing all
+  if (currentCat === 'all' && !searchQuery) {
+    const byCategory = {};
+    filtered.forEach(lab => {
+      if (!byCategory[lab.cat]) byCategory[lab.cat] = [];
+      byCategory[lab.cat].push(lab);
+    });
+    area.innerHTML = '';
+    Object.entries(byCategory).forEach(([cat, labs]) => {
+      const icon = labs[0].icon;
+      const header = document.createElement('div');
+      header.className = 'section-header';
+      header.textContent = `${icon}  ${cat}`;
+      area.appendChild(header);
+      const grid = document.createElement('div');
+      grid.className = 'lab-grid';
+      labs.forEach(lab => grid.appendChild(makeCard(lab)));
+      area.appendChild(grid);
+    });
+  } else {
+    area.innerHTML = '';
+    const grid = document.createElement('div');
+    grid.className = 'lab-grid';
+    filtered.forEach(lab => grid.appendChild(makeCard(lab)));
+    area.appendChild(grid);
+  }
+}
+
+function makeCard(lab) {
+  const color = CATEGORY_COLORS[lab.cat] || '#58a6ff';
+  const diffColor = { beginner: '#238636', intermediate: '#f8c555', advanced: '#b91c1c' }[lab.difficulty];
+  const card = document.createElement('div');
+  card.className = 'lab-card';
+  card.innerHTML = `
+    <div class="lab-card-header">
+      <span class="lab-cat-badge" style="background:${color}22;color:${color};border:1px solid ${color}44">${lab.cat}</span>
+      <span class="open-arrow">↗</span>
+    </div>
+    <div class="lab-name">${lab.name}</div>
+    <div class="lab-desc">${lab.desc}</div>
+    <div class="lab-footer">
+      <span class="lab-path">${lab.path.replace('/index.html','/')}</span>
+      <button class="lab-open-btn" style="background:${diffColor}" onclick="event.stopPropagation();openLab('${lab.path}')">${lab.difficulty}</button>
+    </div>`;
+  card.addEventListener('click', () => openLab(lab.path));
+  return card;
+}
+
+render();
+</script>
+</body>
+</html>

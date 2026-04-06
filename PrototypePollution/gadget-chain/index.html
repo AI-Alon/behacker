@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Prototype Pollution Gadget Chain</title><link rel="stylesheet" href="style.css"><style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+<div class="lab-banner">⚠ EDUCATIONAL LAB — PROTOTYPE POLLUTION: GADGET CHAIN</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+<div class="container">
+<div class="card main-card">
+  <h2>Gadget Chain Exploitation</h2>
+  <p class="subtitle">From prototype pollution to XSS via library gadgets</p>
+  <p class="description">Polluting <code>Object.prototype</code> is only useful when there's a "gadget" — code that reads the polluted property and does something dangerous with it. Pollute a property that the template engine uses to render HTML, triggering XSS.</p>
+
+  <div class="step-label">Step 1 — Pollute via URL</div>
+  <div class="field">
+    <label>Query string (parsed with vulnerable library)</label>
+    <input type="text" id="queryInput" placeholder="?__proto__[innerHTML]=<img src=x onerror=alert(1)>">
+  </div>
+  <div class="hint-list">
+    <span class="hint" data-q="?name=Alice">Normal</span>
+    <span class="hint" data-q="?__proto__[innerHTML]=<b>INJECTED</b>">innerHTML gadget</span>
+    <span class="hint" data-q="?__proto__[src]=x&__proto__[onerror]=alert(document.cookie)">img onerror gadget</span>
+    <span class="hint" data-q="?__proto__[template]=<script>alert('XSS')<\/script>">template gadget</span>
+  </div>
+  <button class="btn-primary" id="pollutBtn" style="margin-top:12px">Apply Pollution</button>
+
+  <div class="step-label">Step 2 — Trigger the Gadget</div>
+  <p class="description" style="margin-bottom:8px">The widget renderer reads <code>options.innerHTML</code> (or falls back to <code>Object.prototype.innerHTML</code>) when building a notification. Click to trigger the render.</p>
+  <button class="btn-primary" id="renderBtn">Render Notification Widget</button>
+
+  <div class="code-label" style="margin-top:16px">Widget Output</div>
+  <div id="widgetOutput" class="widget-output">Widget will render here.</div>
+
+  <div class="code-label" style="margin-top:16px">Prototype Diff</div>
+  <div id="protoDiff" class="proto-state"></div>
+
+  <div id="explanationBox" class="explanation-box hidden"></div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

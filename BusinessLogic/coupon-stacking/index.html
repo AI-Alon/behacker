@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Coupon Stacking — Business Logic Lab</title><link rel="stylesheet" href="style.css"><style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+<div class="lab-banner">⚠ EDUCATIONAL LAB — BUSINESS LOGIC FLAW: COUPON STACKING</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+<div class="container">
+<div class="card main-card">
+  <h2>Coupon Stacking</h2>
+  <p class="subtitle">Business Logic Flaw</p>
+  <p class="description">The server validates each coupon individually but does not track which codes have already been applied. Apply the same code multiple times, or chain incompatible codes, to drive the price to zero.</p>
+
+  <div class="field">
+    <label>Order Total</label>
+    <div class="price-display" id="priceDisplay">$120.00</div>
+  </div>
+  <div class="field">
+    <label>Coupon Code</label>
+    <div style="display:flex;gap:8px">
+      <input type="text" id="couponInput" placeholder="SAVE10, HALF50, FREESHIP, VIP25…" style="flex:1">
+      <button class="btn-primary" id="applyBtn">Apply</button>
+    </div>
+  </div>
+  <div class="code-label">Applied Coupons</div>
+  <div id="appliedList" class="applied-list"></div>
+  <div class="hint-row">
+    <span class="hint" data-code="SAVE10">SAVE10</span>
+    <span class="hint" data-code="HALF50">HALF50</span>
+    <span class="hint" data-code="FREESHIP">FREESHIP</span>
+    <span class="hint" data-code="VIP25">VIP25</span>
+    <span class="hint" data-code="LOYALTY15">LOYALTY15</span>
+  </div>
+  <button class="btn-primary" id="checkoutBtn" style="margin-top:16px;width:100%">Place Order</button>
+  <div id="orderResult" class="hidden result-box"></div>
+  <div id="explanationBox" class="explanation-box hidden"></div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

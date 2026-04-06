@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Client-Side Prototype Pollution</title><link rel="stylesheet" href="style.css"><style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+<div class="lab-banner">⚠ EDUCATIONAL LAB — PROTOTYPE POLLUTION: CLIENT-SIDE</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+<div class="container">
+<div class="card main-card">
+  <h2>Client-Side Prototype Pollution</h2>
+  <p class="subtitle">Injecting properties into Object.prototype via query string or JSON</p>
+  <p class="description">The app uses a vulnerable <code>merge()</code> utility that recurses into <code>__proto__</code>. Inject a property via the URL query string or the JSON merger to pollute <code>Object.prototype</code> and affect every object in the application.</p>
+
+  <div class="step-label">Step 1 — Query String Pollution</div>
+  <div class="field">
+    <label>URL Query String (parsed into options object)</label>
+    <input type="text" id="queryInput" placeholder="?debug=true&__proto__[isAdmin]=true">
+  </div>
+  <div class="hint-list">
+    <span class="hint" data-q="?lang=en">Normal param</span>
+    <span class="hint" data-q="?__proto__[isAdmin]=true">isAdmin pollution</span>
+    <span class="hint" data-q="?__proto__[role]=admin">role pollution</span>
+    <span class="hint" data-q="?constructor[prototype][debug]=true">via constructor</span>
+  </div>
+  <button class="btn-primary" id="parseBtn" style="margin-top:12px">Parse Query String</button>
+
+  <div class="step-label">Step 2 — JSON Deep Merge Pollution</div>
+  <div class="field">
+    <label>JSON payload to merge into user config</label>
+    <textarea class="body-editor" id="jsonInput" rows="5">{"theme":"dark","__proto__":{"isAdmin":true}}</textarea>
+  </div>
+  <button class="btn-primary" id="mergeBtn">Merge Config</button>
+
+  <div class="code-label" style="margin-top:16px">Prototype State</div>
+  <div id="protoState" class="proto-state"></div>
+
+  <div class="step-label">Step 3 — Gadget: Access Control Check</div>
+  <p class="description" style="margin-bottom:8px">The app checks <code>user.isAdmin</code> — if undefined, it falls back to <code>Object.prototype.isAdmin</code>. Try accessing the admin panel after polluting the prototype.</p>
+  <button class="btn-primary" id="accessBtn">Access Admin Panel</button>
+  <div id="accessResult" class="hidden result-msg"></div>
+
+  <div id="explanationBox" class="explanation-box hidden"></div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

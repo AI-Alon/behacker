@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stored XSS — How It Works — BEHACKER</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0f14;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:0}
+nav{background:#161b22;border-bottom:1px solid #30363d;padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.nav-brand{color:#c9d1d9;text-decoration:none;font-weight:700;font-size:1.1rem}
+.nav-back{color:#58a6ff;text-decoration:none;font-size:.9rem}
+.nav-back:hover{text-decoration:underline}
+main{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:2rem;font-weight:700;color:#e6edf3;margin-bottom:8px}
+.subtitle{color:#8b949e;font-size:.95rem;margin-bottom:40px}
+h2{font-size:1.3rem;font-weight:600;color:#e6edf3;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid #30363d}
+h3{font-size:1.1rem;font-weight:600;color:#f8c555;margin:24px 0 10px}
+p{line-height:1.7;margin-bottom:14px;color:#c9d1d9}
+ul,ol{margin:0 0 16px 24px;line-height:1.8}
+li{margin-bottom:4px}
+li strong{color:#e6edf3}
+code{background:#161b22;border:1px solid #30363d;border-radius:4px;padding:2px 6px;font-family:'Courier New',monospace;font-size:.88rem;color:#f8c555}
+pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;overflow-x:auto;margin:16px 0 24px}
+pre code{background:none;border:none;padding:0;color:#b5e8a0;font-size:.9rem}
+hr{border:none;border-top:1px solid #30363d;margin:32px 0}
+.back-btn{display:inline-block;margin-top:40px;padding:10px 20px;background:#238636;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:.9rem}
+.back-btn:hover{background:#2ea043}
+strong{color:#e6edf3}
+em{color:#8b949e;font-style:italic}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../../NAVIGATE.html" class="nav-brand">💀 BEHACKER</a>
+  <a href="index.html" class="nav-back">← Back to Lab</a>
+</nav>
+<main>
+<h1>Stored XSS — How It Works</h1>
+
+<h2>Normal rendering (safe)</h2>
+
+<p>Messages are saved and displayed as plain text:</p>
+
+<pre><code class="language-js">messageEl.textContent = storedMessage;</code></pre>
+
+<p>Output: <code>&lt;script&gt;alert(1)&lt;/script&gt;</code> ← shown literally, not executed.</p>
+
+<hr>
+
+<h2>Vulnerable rendering (stored + innerHTML)</h2>
+
+<pre><code class="language-js">// Step 1: save raw input
+localStorage.setItem("messages", JSON.stringify([{ name, message }]));
+
+// Step 2: on every page load, render stored HTML
+boardOutput.innerHTML = storedMessages.map(m =&gt;
+  `&lt;div&gt;&lt;span&gt;${m.name}&lt;/span&gt;&lt;p&gt;${m.message}&lt;/p&gt;&lt;/div&gt;`
+).join("");</code></pre>
+
+<p>If a message contains: <code>&lt;img src=x onerror="alert('XSS')"&gt;</code>  </p>
+<p>That tag is stored, then replayed into the DOM on every page load — for every visitor.</p>
+
+<hr>
+
+<h2>Why "stored" is more dangerous than reflected</h2>
+
+<ul>
+<li><strong>Payload location</strong>: Reflected XSS — URL parameter | Stored XSS — Database / storage</li>
+<li><strong>Who is affected</strong>: Reflected XSS — Only victims who click the crafted link | Stored XSS — Every user who visits the page</li>
+<li><strong>Server logs</strong>: Reflected XSS — Payload may appear in access logs | Stored XSS — Payload is already stored — no suspicious URL</li>
+<li><strong>Requires victim action</strong>: Reflected XSS — Click a link | Stored XSS — Just visit the page</li>
+</ul>
+
+<hr>
+
+<h2>Real-world targets</h2>
+
+<ul>
+<li>Comment sections</li>
+<li>User profile bios</li>
+<li>Product reviews</li>
+<li>Support ticket systems</li>
+<li>Chat messages</li>
+</ul>
+
+<hr>
+
+<h2>The Fix</h2>
+
+<pre><code class="language-js">// Option 1: escape before storing
+function escapeHtml(str) {
+  return str
+    .replace(/&amp;/g, "&amp;amp;")
+    .replace(/&lt;/g, "&amp;lt;")
+    .replace(/&gt;/g, "&amp;gt;")
+    .replace(/"/g, "&amp;quot;");
+}
+
+// Option 2: use textContent when rendering (never innerHTML for user content)
+nameEl.textContent  = m.name;
+msgEl.textContent   = m.message;
+
+// Option 3: sanitise with a library (DOMPurify)
+boardOutput.innerHTML = DOMPurify.sanitize(html);</code></pre>
+
+<p>Always sanitise on output — even if input validation is in place.</p>
+
+<a href="index.html" class="back-btn">← Back to Lab</a>
+</main>
+</body>
+</html>

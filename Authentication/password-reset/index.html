@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Password Reset Poisoning Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+
+  <div class="lab-banner">
+    PASSWORD RESET POISONING LAB &mdash; EDUCATIONAL PURPOSES ONLY
+  </div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+
+  <div class="container">
+    <div class="card main-card">
+      <h2>Forgot Password</h2>
+      <p class="subtitle">Secure Corp &trade; — Reset link is built from the Host header</p>
+
+      <p class="description">
+        The server generates a reset link using the <code>Host</code> header from the request.
+        Manipulate the header to redirect the reset link to an attacker-controlled domain.
+      </p>
+
+      <form id="resetForm" autocomplete="off">
+        <div class="field">
+          <label for="emailInput">Account Email</label>
+          <input type="text" id="emailInput" placeholder="victim@securecorp.com" value="victim@securecorp.com" />
+        </div>
+        <div class="field">
+          <label for="hostHeader">Host Header <span class="field-note">(normally set by browser — attacker can forge this)</span></label>
+          <input type="text" id="hostHeader" placeholder="securecorp.com" value="securecorp.com" />
+        </div>
+        <button type="submit" class="btn-primary">Send Reset Email</button>
+      </form>
+
+      <div class="code-label">Simulated reset email sent to victim:</div>
+      <div id="emailPreview" class="email-preview hidden"></div>
+
+      <div class="code-label" style="margin-top:16px;">Server-side logic (vulnerable):</div>
+      <code id="codeDisplay" class="code-display">—</code>
+
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

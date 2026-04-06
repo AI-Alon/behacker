@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DOM XSS Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+
+  <div class="lab-banner">
+    DOM-BASED XSS LAB &mdash; EDUCATIONAL PURPOSES ONLY
+  </div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+
+  <div class="container">
+    <div class="card main-card">
+      <h2>Welcome Page</h2>
+      <p class="subtitle">Secure Corp &trade; — Personalised greeting via URL parameter</p>
+
+      <p class="description">
+        The page reads your name from the URL hash: <code>index.html#name=Alice</code>
+      </p>
+
+      <div class="field">
+        <label for="hashInput">Simulate URL hash value</label>
+        <input type="text" id="hashInput" placeholder="name=Alice" />
+      </div>
+      <button id="goBtn" class="btn-primary">Set Hash &amp; Render</button>
+
+      <div class="code-label">URL hash read by JS:</div>
+      <code id="codeDisplay" class="code-display">—</code>
+
+      <div class="code-label" style="margin-top:12px;">DOM sink used:</div>
+      <code id="sinkDisplay" class="code-display">—</code>
+
+      <div id="outputBox" class="output-box hidden"></div>
+
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

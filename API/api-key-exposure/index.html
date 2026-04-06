@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>API Key Exposure Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+  <div class="lab-banner">API KEY EXPOSURE LAB &mdash; EDUCATIONAL PURPOSES ONLY</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+  <div class="container">
+    <div class="card main-card">
+      <h2>Frontend Application</h2>
+      <p class="subtitle">Secure Corp &trade; — API keys embedded directly in client-side JavaScript</p>
+      <p class="description">
+        Developers often hard-code API keys in frontend JS, source maps, or response headers —
+        all of which are visible to anyone who opens DevTools. Find the hidden keys.
+      </p>
+
+      <div class="step-label">Simulated browser DevTools</div>
+
+      <div class="devtools">
+        <div class="devtools-tabs">
+          <button class="tab active" data-tab="sources">Sources</button>
+          <button class="tab" data-tab="network">Network</button>
+          <button class="tab" data-tab="console">Console</button>
+        </div>
+
+        <div id="tab-sources" class="tab-content active">
+          <div class="file-tree">
+            <span class="tree-item" data-file="app.js">📄 app.js</span>
+            <span class="tree-item" data-file="config.js">📄 config.js</span>
+            <span class="tree-item" data-file="analytics.js">📄 analytics.js</span>
+          </div>
+          <pre id="sourceViewer" class="source-viewer">Click a file to view its contents.</pre>
+        </div>
+
+        <div id="tab-network" class="tab-content hidden">
+          <div class="network-list" id="networkList"></div>
+        </div>
+
+        <div id="tab-console" class="tab-content hidden">
+          <pre class="console-output" id="consoleOutput">Secure Corp App v2.4.1
+Initialising modules...
+> </pre>
+        </div>
+      </div>
+
+      <button id="loadBtn" class="btn-primary" style="margin-top:16px;">Load Page (simulate)</button>
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

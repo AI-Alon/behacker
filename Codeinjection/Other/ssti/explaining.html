@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SSTI (Server-Side Template Injection) — How It Works — BEHACKER</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0f14;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:0}
+nav{background:#161b22;border-bottom:1px solid #30363d;padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.nav-brand{color:#c9d1d9;text-decoration:none;font-weight:700;font-size:1.1rem}
+.nav-back{color:#58a6ff;text-decoration:none;font-size:.9rem}
+.nav-back:hover{text-decoration:underline}
+main{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:2rem;font-weight:700;color:#e6edf3;margin-bottom:8px}
+.subtitle{color:#8b949e;font-size:.95rem;margin-bottom:40px}
+h2{font-size:1.3rem;font-weight:600;color:#e6edf3;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid #30363d}
+h3{font-size:1.1rem;font-weight:600;color:#f8c555;margin:24px 0 10px}
+p{line-height:1.7;margin-bottom:14px;color:#c9d1d9}
+ul,ol{margin:0 0 16px 24px;line-height:1.8}
+li{margin-bottom:4px}
+li strong{color:#e6edf3}
+code{background:#161b22;border:1px solid #30363d;border-radius:4px;padding:2px 6px;font-family:'Courier New',monospace;font-size:.88rem;color:#f8c555}
+pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;overflow-x:auto;margin:16px 0 24px}
+pre code{background:none;border:none;padding:0;color:#b5e8a0;font-size:.9rem}
+hr{border:none;border-top:1px solid #30363d;margin:32px 0}
+.back-btn{display:inline-block;margin-top:40px;padding:10px 20px;background:#238636;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:.9rem}
+.back-btn:hover{background:#2ea043}
+strong{color:#e6edf3}
+em{color:#8b949e;font-style:italic}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../../../NAVIGATE.html" class="nav-brand">💀 BEHACKER</a>
+  <a href="index.html" class="nav-back">← Back to Lab</a>
+</nav>
+<main>
+<h1>SSTI (Server-Side Template Injection) — How It Works</h1>
+
+<h2>Normal template rendering (intended)</h2>
+
+<p>The server accepts a template string and renders it with safe context variables:</p>
+
+<pre><code class="language-python">template = "Hello {{name}}, your role is {{role}}."
+render(template, name="Alice", role="Viewer")</code></pre>
+
+<p>Output: <code>Hello Alice, your role is Viewer.</code></p>
+
+<hr>
+
+<h2>Injection: access variables outside the safe set</h2>
+
+<p>Input template: <code>{{secret}}</code></p>
+
+<p>The engine evaluates <code>secret</code> against the full server context — which includes</p>
+<p>variables the developer never intended to expose.</p>
+
+<p>Output: <code>FLAG{ssti&lt;em&gt;template&lt;/em&gt;pwned}</code></p>
+
+<hr>
+
+<h2>Injection: traverse nested objects</h2>
+
+<p>Input template: <code>{{config.db_url}}</code></p>
+
+<p>Output: <code>postgres://admin:hunter2@db:5432/prod</code></p>
+
+<p>The template engine follows dot-path traversal, reaching the database connection string.</p>
+
+<hr>
+
+<h2>Injection: loop to dump all users</h2>
+
+<p>Input template:</p>
+<pre><code>{% for u in users %}{{u.username}} — {{u.email}}
+{% endfor %}</code></pre>
+
+<p>Output: full list of all user accounts and emails.</p>
+
+<hr>
+
+<h2>Escalation: Jinja2 Python object traversal (real server)</h2>
+
+<p>In a real Jinja2 environment, template expressions can walk Python's object hierarchy:</p>
+
+<pre><code>{{''.__class__.__mro__[1].__subclasses__()}}</code></pre>
+
+<p>This reaches Python's base <code>object</code> class and lists all subclasses currently loaded —</p>
+<p>including file I/O, subprocess, and OS interfaces.</p>
+<p>From there an attacker can execute arbitrary OS commands with no further authentication.</p>
+
+<hr>
+
+<h2>Why this is different from XSS</h2>
+
+<ul>
+<li>XSS runs in the <strong>browser</strong> — limited to what the page can do.</li>
+<li>SSTI runs on the <strong>server</strong> — full access to the process, filesystem, and network.</li>
+<li>SSTI can lead to Remote Code Execution (RCE) — the highest severity finding.</li>
+</ul>
+
+<hr>
+
+<h2>The Fix</h2>
+
+<pre><code class="language-python"># WRONG — user controls what gets evaluated
+template_str = request.form["template"]
+render_template_string(template_str, **context)
+
+# RIGHT — user input goes into context values, not the template structure
+render_template("fixed_email.html", name=request.form["name"])</code></pre>
+
+<p>The template structure is fixed and written by the developer.</p>
+<p>User input is only ever a context value — it is never evaluated as template syntax.</p>
+
+<a href="index.html" class="back-btn">← Back to Lab</a>
+</main>
+</body>
+</html>

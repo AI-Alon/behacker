@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mass Assignment Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+  <div class="lab-banner">MASS ASSIGNMENT LAB &mdash; EDUCATIONAL PURPOSES ONLY</div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+  <div class="container">
+    <div class="card main-card">
+      <h2>User Registration</h2>
+      <p class="subtitle">Secure Corp &trade; — API binds all request body fields directly to the user model</p>
+      <p class="description">
+        The registration endpoint passes the entire request body to the ORM without a whitelist.
+        Add extra fields like <code>role</code> or <code>isAdmin</code> to overwrite protected properties.
+      </p>
+
+      <div class="code-label">Request body (JSON — edit freely):</div>
+      <textarea id="bodyEditor" class="body-editor" rows="8">{
+  "username": "alice",
+  "email": "alice@example.com",
+  "password": "password123"
+}</textarea>
+      <button id="sendBtn" class="btn-primary" style="margin-top:8px;">POST /api/register</button>
+
+      <div class="code-label" style="margin-top:16px;">Fields to inject (click to add):</div>
+      <div class="hint-list">
+        <span class="hint" data-field='"role": "admin"'>role: admin</span>
+        <span class="hint" data-field='"isAdmin": true'>isAdmin: true</span>
+        <span class="hint" data-field='"balance": 99999'>balance: 99999</span>
+        <span class="hint" data-field='"verified": true'>verified: true</span>
+        <span class="hint" data-field='"uid": 1'>uid: 1</span>
+        <span class="hint" data-field='"plan": "enterprise"'>plan: enterprise</span>
+      </div>
+
+      <div class="code-label" style="margin-top:16px;">Server response:</div>
+      <div id="responseBox" class="response-box hidden"></div>
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

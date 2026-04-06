@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SQL Injection Lab — Search Box</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+
+  <div class="lab-banner">
+    SQL INJECTION LAB &mdash; EDUCATIONAL PURPOSES ONLY
+  </div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+
+  <div class="container">
+    <div class="card main-card">
+      <h2>Product Search</h2>
+      <p class="subtitle">Secure Corp &trade; — Product Catalogue</p>
+
+      <form id="searchForm" autocomplete="off">
+        <div class="search-row">
+          <input type="text" id="searchInput" placeholder="Search products..." />
+          <button type="submit" class="btn-primary">Search</button>
+        </div>
+      </form>
+
+      <div class="query-box">
+        <span class="query-label">SQL Query executed:</span>
+        <code id="queryDisplay">—</code>
+      </div>
+
+      <div id="resultsSection" class="hidden">
+        <h3 class="results-title">Results <span id="resultCount"></span></h3>
+        <table class="table-results">
+          <thead id="resultsHead"></thead>
+          <tbody id="resultsBody"></tbody>
+        </table>
+      </div>
+
+      <div id="errorMsg" class="msg error hidden">No results found.</div>
+
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

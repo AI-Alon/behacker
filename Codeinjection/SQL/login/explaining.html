@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SQL Injection — Login Bypass — BEHACKER</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0f14;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:0}
+nav{background:#161b22;border-bottom:1px solid #30363d;padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.nav-brand{color:#c9d1d9;text-decoration:none;font-weight:700;font-size:1.1rem}
+.nav-back{color:#58a6ff;text-decoration:none;font-size:.9rem}
+.nav-back:hover{text-decoration:underline}
+main{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:2rem;font-weight:700;color:#e6edf3;margin-bottom:8px}
+.subtitle{color:#8b949e;font-size:.95rem;margin-bottom:40px}
+h2{font-size:1.3rem;font-weight:600;color:#e6edf3;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid #30363d}
+h3{font-size:1.1rem;font-weight:600;color:#f8c555;margin:24px 0 10px}
+p{line-height:1.7;margin-bottom:14px;color:#c9d1d9}
+ul,ol{margin:0 0 16px 24px;line-height:1.8}
+li{margin-bottom:4px}
+li strong{color:#e6edf3}
+code{background:#161b22;border:1px solid #30363d;border-radius:4px;padding:2px 6px;font-family:'Courier New',monospace;font-size:.88rem;color:#f8c555}
+pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;overflow-x:auto;margin:16px 0 24px}
+pre code{background:none;border:none;padding:0;color:#b5e8a0;font-size:.9rem}
+hr{border:none;border-top:1px solid #30363d;margin:32px 0}
+.back-btn{display:inline-block;margin-top:40px;padding:10px 20px;background:#238636;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:.9rem}
+.back-btn:hover{background:#2ea043}
+strong{color:#e6edf3}
+em{color:#8b949e;font-style:italic}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../../../NAVIGATE.html" class="nav-brand">💀 BEHACKER</a>
+  <a href="index.html" class="nav-back">← Back to Lab</a>
+</nav>
+<main>
+<h1>SQL Injection — Login Bypass</h1>
+
+<h2>What is it?</h2>
+<p>SQL injection in a login form allows an attacker to bypass authentication entirely by injecting SQL syntax that short-circuits the WHERE clause. The server never actually verifies the password — the injected comment discards that check.</p>
+
+<h2>How it works</h2>
+<p>Normal authentication query — checks username and password against the users table:</p>
+
+<pre><code class="language-sql">SELECT * FROM users WHERE username = 'input' AND passwd = 'input';</code></pre>
+
+<p>If we input the following values:</p>
+<ul>
+<li>username: <code>admin'--</code></li>
+<li>passwd: <code>anything</code></li>
+</ul>
+
+<p>The resulting query will be:</p>
+
+<pre><code class="language-sql">SELECT * FROM users WHERE username = 'admin'--' AND passwd = 'anything';</code></pre>
+
+<p>The <code>--</code> starts a comment, so the password check is ignored. The query effectively becomes:</p>
+
+<pre><code class="language-sql">SELECT * FROM users WHERE username = 'admin';</code></pre>
+
+<p>Result: logged in as admin with no password required.</p>
+
+<hr>
+
+<p>The fix: use a parameterized query. The user input is passed as a bound value, never concatenated into the SQL text.</p>
+
+<pre><code class="language-sql">SELECT * FROM users WHERE username=? AND passwd=?
+-- values: (username, passwd)</code></pre>
+
+<p>No matter what the user types, it is treated as plain data. A username of <code>admin'--</code> becomes a literal string lookup — not SQL syntax. The comment characters have no special meaning inside a bound parameter.</p>
+
+<h2>Real-world impact</h2>
+<ul>
+<li><strong>Authentication bypass:</strong> Log in as any user without knowing their password</li>
+<li><strong>Admin account compromise:</strong> Target well-known usernames like <code>admin</code>, <code>root</code>, <code>superuser</code></li>
+<li><strong>Full database dump:</strong> Chain with UNION injection to extract all data</li>
+<li><strong>CVE-2011-4107:</strong> phpMyAdmin SQL injection bypass — classic example</li>
+</ul>
+
+<h2>Common payloads</h2>
+<pre><code>admin'--          → comments out password check
+' OR '1'='1'--   → makes WHERE always true
+' OR 1=1--        → same, numeric comparison
+admin'/*          → block comment variant</code></pre>
+
+<a href="index.html" class="back-btn">← Back to Lab</a>
+</main>
+</body>
+</html>

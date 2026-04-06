@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SQL Injection Lab — URL Parameter</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+
+  <div class="lab-banner">
+    SQL INJECTION LAB &mdash; EDUCATIONAL PURPOSES ONLY
+  </div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+
+  <div class="container">
+    <div class="card main-card">
+
+      <h2>User Profile Viewer</h2>
+      <p class="subtitle">Secure Corp &trade; — Public Profile Lookup</p>
+
+      <p class="description">
+        This page loads a user profile based on the <code>id</code> URL parameter.
+        The value is inserted <strong>directly</strong> into the SQL query — no sanitisation.
+        Try manipulating it.
+      </p>
+
+      <!-- Quick-load pills -->
+      <div class="section-label">Normal requests</div>
+      <div class="nav-pills" id="normalPills">
+        <a href="?id=1" class="pill pill-normal">?id=1</a>
+        <a href="?id=2" class="pill pill-normal">?id=2</a>
+        <a href="?id=3" class="pill pill-normal">?id=3</a>
+        <a href="?id=99" class="pill pill-normal">?id=99 (no match)</a>
+      </div>
+
+      <div class="section-label">Injection payloads</div>
+      <div class="nav-pills" id="attackPills">
+        <a href="?id=1 OR 1=1" class="pill pill-attack">OR 1=1</a>
+        <a href="?id=1 OR 'a'='a'" class="pill pill-attack">OR 'a'='a'</a>
+        <a href="?id=1--" class="pill pill-attack">1-- (comment)</a>
+        <a href="?id=0 UNION SELECT 1,username,password,role FROM users--" class="pill pill-attack">UNION dump</a>
+        <a href="?id=1; DROP TABLE users--" class="pill pill-attack">DROP TABLE</a>
+      </div>
+
+      <!-- Live URL bar display -->
+      <div class="url-bar">
+        <span class="url-scheme">http://securecorp.io/profile</span><span id="urlParam" class="url-param"></span>
+      </div>
+
+      <!-- SQL query display (syntax-highlighted) -->
+      <div class="query-box">
+        <span class="query-label">SQL Query executed</span>
+        <pre id="queryDisplay" class="query-pre">—</pre>
+      </div>
+
+      <!-- Result area -->
+      <div id="resultArea"></div>
+
+      <!-- Explanation -->
+      <div id="explanationBox" class="explanation-box hidden"></div>
+
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

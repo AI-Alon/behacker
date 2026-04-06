@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Brute-Force Login Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+
+  <div class="lab-banner">
+    BRUTE-FORCE LOGIN LAB &mdash; EDUCATIONAL PURPOSES ONLY
+  </div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+
+  <div class="container">
+    <div class="card main-card">
+      <h2>Employee Login</h2>
+      <p class="subtitle">Secure Corp &trade; — No account lockout, no rate limiting</p>
+
+      <form id="loginForm" autocomplete="off">
+        <div class="field">
+          <label for="username">Username</label>
+          <input type="text" id="username" placeholder="Enter username" value="admin" />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Enter password" />
+        </div>
+        <button type="submit" class="btn-primary">Login</button>
+      </form>
+
+      <div id="errorMsg"   class="msg error   hidden">Wrong password. Try again.</div>
+      <div id="successMsg" class="msg success hidden">Access granted! Welcome, admin.</div>
+
+      <div class="code-label">Attempt log:</div>
+      <div id="attemptLog" class="attempt-log"></div>
+
+      <div class="code-label" style="margin-top:12px;">Simulated wordlist attack:</div>
+      <button id="autoBtn" class="btn-secondary">Run Auto Brute-Force</button>
+
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

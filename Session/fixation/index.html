@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Session Fixation Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+
+  <div class="lab-banner">
+    SESSION FIXATION LAB &mdash; EDUCATIONAL PURPOSES ONLY
+  </div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+
+  <div class="container">
+    <div class="card main-card">
+      <h2>Employee Portal Login</h2>
+      <p class="subtitle">Secure Corp &trade; — Session ID is accepted from the URL parameter</p>
+
+      <p class="description">
+        The server accepts a <code>?sid=</code> URL parameter and pre-sets the session before login.
+        An attacker can send a victim a link with a known session ID, then hijack it after the victim logs in.
+      </p>
+
+      <!-- Step 1: Attacker plants session -->
+      <div class="step-label">Step 1 — Attacker plants a known session ID via URL</div>
+      <div class="field">
+        <label for="sidInput">Session ID in URL <span class="field-note">(?sid= parameter — attacker controls this)</span></label>
+        <input type="text" id="sidInput" placeholder="e.g. ATTACKER_KNOWN_SID_9x3k" value="ATTACKER_KNOWN_SID_9x3k" />
+      </div>
+      <button id="plantBtn" class="btn-secondary">Send Victim This Link</button>
+
+      <div class="code-label">Crafted URL sent to victim:</div>
+      <code id="urlDisplay" class="code-display">—</code>
+
+      <!-- Step 2: Victim logs in -->
+      <div class="step-label" style="margin-top:24px;">Step 2 — Victim opens the link and logs in</div>
+      <form id="loginForm" autocomplete="off">
+        <div class="field">
+          <label for="username">Username</label>
+          <input type="text" id="username" placeholder="alice" value="alice" />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="password123" value="password123" />
+        </div>
+        <button type="submit" class="btn-primary">Login as Victim</button>
+      </form>
+
+      <div id="errorMsg"   class="msg error   hidden">Invalid credentials.</div>
+      <div id="successMsg" class="msg success hidden"></div>
+
+      <!-- Step 3: Attacker hijacks -->
+      <div class="step-label" style="margin-top:24px;">Step 3 — Attacker reuses the same session ID</div>
+      <button id="hijackBtn" class="btn-danger" disabled>Hijack Session (as Attacker)</button>
+
+      <div id="hijackResult" class="hijack-result hidden"></div>
+
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

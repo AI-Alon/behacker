@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GraphQL Introspection & Missing Authorization — BEHACKER</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0f14;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:0}
+nav{background:#161b22;border-bottom:1px solid #30363d;padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.nav-brand{color:#c9d1d9;text-decoration:none;font-weight:700;font-size:1.1rem}
+.nav-back{color:#58a6ff;text-decoration:none;font-size:.9rem}
+.nav-back:hover{text-decoration:underline}
+main{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:2rem;font-weight:700;color:#e6edf3;margin-bottom:8px}
+.subtitle{color:#8b949e;font-size:.95rem;margin-bottom:40px}
+h2{font-size:1.3rem;font-weight:600;color:#e6edf3;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid #30363d}
+h3{font-size:1.1rem;font-weight:600;color:#f8c555;margin:24px 0 10px}
+p{line-height:1.7;margin-bottom:14px;color:#c9d1d9}
+ul,ol{margin:0 0 16px 24px;line-height:1.8}
+li{margin-bottom:4px}
+li strong{color:#e6edf3}
+code{background:#161b22;border:1px solid #30363d;border-radius:4px;padding:2px 6px;font-family:'Courier New',monospace;font-size:.88rem;color:#f8c555}
+pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;overflow-x:auto;margin:16px 0 24px}
+pre code{background:none;border:none;padding:0;color:#b5e8a0;font-size:.9rem}
+hr{border:none;border-top:1px solid #30363d;margin:32px 0}
+.back-btn{display:inline-block;margin-top:40px;padding:10px 20px;background:#238636;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:.9rem}
+.back-btn:hover{background:#2ea043}
+strong{color:#e6edf3}
+em{color:#8b949e;font-style:italic}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../../NAVIGATE.html" class="nav-brand">💀 BEHACKER</a>
+  <a href="index.html" class="nav-back">← Back to Lab</a>
+</nav>
+<main>
+<h1>GraphQL Introspection & Missing Authorization</h1>
+
+<h2>What is it?</h2>
+<p>GraphQL introspection is a built-in feature that lets clients query the full API schema — all types, fields, queries, mutations, and their arguments. In production, this is an attacker's roadmap to every internal operation your API supports.</p>
+
+<h2>The two-part vulnerability</h2>
+
+<h3>1. Introspection enabled in production</h3>
+<pre><code class="language-graphql">{ __schema { types { name fields { name description } } } }</code></pre>
+<p>This reveals:</p>
+<ul>
+<li>Hidden admin queries (<code>adminUsers</code>, <code>adminDumpDB</code>, <code>adminSetRole</code>)</li>
+<li>Internal field names (<code>passwordHash</code>, <code>resetToken</code>, <code>ssn</code>)</li>
+<li>Developer comments in <code>description</code> fields marked "INTERNAL"</li>
+<li>The full mutation schema including destructive operations</li>
+</ul>
+
+<h3>2. No authorization on resolvers</h3>
+<p>Even if introspection is disabled, the resolvers themselves must verify the caller. Without authorization:</p>
+<pre><code class="language-graphql">{ adminUsers { id email passwordHash resetToken } }</code></pre>
+<p>Returns all user records to any unauthenticated caller.</p>
+
+<h2>Attack flow</h2>
+<ol>
+<li>Send introspection query → discover <code>adminDumpDB</code>, <code>adminSetRole</code>, <code>adminResetAll</code></li>
+<li>Call <code>adminDumpDB</code> → get S3 URL to full database backup</li>
+<li>Call <code>adminSetRole(userId: "101", role: "admin")</code> → escalate privileges</li>
+<li>Use admin token to access entire application</li>
+</ol>
+
+<h2>Tools</h2>
+<ul>
+<li><strong>GraphiQL / Altair</strong>: Browser-based GraphQL IDEs that auto-run introspection</li>
+<li><strong>InQL (Burp extension)</strong>: Parses schema, generates test queries for every operation</li>
+<li><strong>graphql-voyager</strong>: Visualizes schema as an interactive graph</li>
+</ul>
+
+<h2>Defense</h2>
+<pre><code class="language-js">// Apollo Server — disable introspection
+const server = new ApolloServer({
+  introspection: process.env.NODE_ENV !== 'production',
+});</code></pre>
+
+<p>More importantly, <strong>authorization in every resolver</strong>:</p>
+<pre><code class="language-js">adminUsers: (_, __, context) =&gt; {
+  if (!context.user?.isAdmin) throw new ForbiddenError('Admins only');
+  return User.findAll();
+}</code></pre>
+
+<ul>
+<li>Disable introspection in production</li>
+<li>Apply field-level authorization (directives or middleware)</li>
+<li>Separate public and internal schemas if possible</li>
+<li>Use query depth/complexity limits to prevent abuse</li>
+</ul>
+
+<a href="index.html" class="back-btn">← Back to Lab</a>
+</main>
+</body>
+</html>

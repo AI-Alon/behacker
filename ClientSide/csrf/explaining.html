@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CSRF — How It Works — BEHACKER</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0f14;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:0}
+nav{background:#161b22;border-bottom:1px solid #30363d;padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.nav-brand{color:#c9d1d9;text-decoration:none;font-weight:700;font-size:1.1rem}
+.nav-back{color:#58a6ff;text-decoration:none;font-size:.9rem}
+.nav-back:hover{text-decoration:underline}
+main{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:2rem;font-weight:700;color:#e6edf3;margin-bottom:8px}
+.subtitle{color:#8b949e;font-size:.95rem;margin-bottom:40px}
+h2{font-size:1.3rem;font-weight:600;color:#e6edf3;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid #30363d}
+h3{font-size:1.1rem;font-weight:600;color:#f8c555;margin:24px 0 10px}
+p{line-height:1.7;margin-bottom:14px;color:#c9d1d9}
+ul,ol{margin:0 0 16px 24px;line-height:1.8}
+li{margin-bottom:4px}
+li strong{color:#e6edf3}
+code{background:#161b22;border:1px solid #30363d;border-radius:4px;padding:2px 6px;font-family:'Courier New',monospace;font-size:.88rem;color:#f8c555}
+pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;overflow-x:auto;margin:16px 0 24px}
+pre code{background:none;border:none;padding:0;color:#b5e8a0;font-size:.9rem}
+hr{border:none;border-top:1px solid #30363d;margin:32px 0}
+.back-btn{display:inline-block;margin-top:40px;padding:10px 20px;background:#238636;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:.9rem}
+.back-btn:hover{background:#2ea043}
+strong{color:#e6edf3}
+em{color:#8b949e;font-style:italic}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../../NAVIGATE.html" class="nav-brand">💀 BEHACKER</a>
+  <a href="index.html" class="nav-back">← Back to Lab</a>
+</nav>
+<main>
+<h1>CSRF — How It Works</h1>
+
+<h2>What is it?</h2>
+
+<p>CSRF (Cross-Site Request Forgery) tricks a logged-in user's browser into sending a request to a site they are authenticated on — without their knowledge. The browser automatically attaches the victim's session cookie to every request, regardless of which site triggered it.</p>
+
+<hr>
+
+<h2>The attack flow</h2>
+
+<pre><code>1. Victim logs into securecorp.com — session cookie stored in browser
+2. Victim visits evil.com (malicious page)
+3. evil.com contains a hidden auto-submitting form:
+
+   &lt;form action="https://securecorp.com/api/transfer" method="POST" id="x"&gt;
+     &lt;input name="to"     value="attacker-account"&gt;
+     &lt;input name="amount" value="500"&gt;
+   &lt;/form&gt;
+   &lt;script&gt;document.getElementById('x').submit();&lt;/script&gt;
+
+4. Browser sends POST to securecorp.com
+5. Browser auto-attaches: Cookie: session=alice_valid_session
+6. Server sees a valid session — processes the transfer
+7. $500 transferred to attacker, victim has no idea</code></pre>
+
+<hr>
+
+<h2>Why cookies alone are not enough</h2>
+
+<p>The server cannot distinguish:</p>
+<ul>
+<li>A request from <code>securecorp.com/transfer-form</code> (legitimate)</li>
+<li>A request from <code>evil.com</code> hidden form (forged)</li>
+</ul>
+
+<p>Both carry the same session cookie.</p>
+
+<hr>
+
+<h2>The Fix</h2>
+
+<h3>CSRF Token (synchroniser token pattern)</h3>
+<pre><code class="language-html">&lt;!-- Server embeds a secret token in every form --&gt;
+&lt;form method="POST" action="/api/transfer"&gt;
+  &lt;input type="hidden" name="csrf_token" value="a3f9c2e1b847..."&gt;
+  ...
+&lt;/form&gt;</code></pre>
+
+<pre><code class="language-js">// Server verifies the token on every state-changing request
+if (req.body.csrf_token !== req.session.csrf_token) {
+  return res.status(403).send("CSRF token mismatch");
+}</code></pre>
+
+<p>The attacker's page cannot read the token (blocked by Same-Origin Policy), so it cannot forge a valid request.</p>
+
+<h3>SameSite Cookie Attribute</h3>
+<pre><code>Set-Cookie: session=abc123; SameSite=Strict; Secure; HttpOnly</code></pre>
+
+<p><code>SameSite=Strict</code> — cookie is never sent on cross-site requests.</p>
+<p><code>SameSite=Lax</code> — sent on top-level navigations (GET) but not cross-site POST.</p>
+
+<a href="index.html" class="back-btn">← Back to Lab</a>
+</main>
+</body>
+</html>

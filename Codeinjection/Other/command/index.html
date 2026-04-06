@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Command Injection Lab</title>
+  <link rel="stylesheet" href="style.css" />
+<style>
+  .explain-btn {
+    display: inline-block;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: background .2s, border-color .2s;
+  }
+  .explain-btn:hover { background: #21262d; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+
+  <div class="lab-banner">
+    COMMAND INJECTION LAB &mdash; EDUCATIONAL PURPOSES ONLY
+  </div>
+  <a href="explaining.html" class="explain-btn" target="_blank">📖 Explanation</a>
+
+  <div class="container">
+    <div class="card main-card">
+      <h2>Network Ping Utility</h2>
+      <p class="subtitle">Secure Corp &trade; — Enter a hostname to ping</p>
+
+      <form id="pingForm" autocomplete="off">
+        <div class="field">
+          <label for="hostInput">Hostname / IP</label>
+          <input type="text" id="hostInput" placeholder="e.g. example.com" />
+        </div>
+        <button type="submit" class="btn-primary">Ping</button>
+      </form>
+
+      <div class="cmd-label">OS command executed:</div>
+      <code id="cmdDisplay" class="cmd-display">—</code>
+
+      <div id="terminal" class="terminal hidden">
+        <div class="terminal-bar">terminal output</div>
+        <pre id="terminalOutput"></pre>
+      </div>
+
+      <div id="explanationBox" class="explanation-box hidden"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
